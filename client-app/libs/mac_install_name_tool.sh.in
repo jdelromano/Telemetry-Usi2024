@@ -1,0 +1,10 @@
+#!/bin/bash
+for fileName in $1*dylib; do
+
+    if [[ -L "$fileName" ]]; then
+        currentLib=$(readlink -f $fileName)
+    else
+        currentLib=$(pwd)/$fileName
+    fi
+    install_name_tool -id $(pwd)/$fileName $currentLib
+done

@@ -1,0 +1,6 @@
+#!/bin/bash
+export CMAKE_OSX_ARCHITECTURES="arm64;x86_64"
+export CFLAGS="-arch x86_64 -arch arm64"
+export CXXFLAGS="-arch x86_64 -arch arm64"
+export LDFLAGS="-arch x86_64 -arch arm64 -Wl,-no_compact_unwind"
+eval "$*"
