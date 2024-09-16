@@ -16,6 +16,6 @@ The tasks are as follows:
 
 ## Requirements
 
-Use of Qt 6
-The server side of the framework must be dockerized.  
-Everything server side must be highly optimized.
+- Use of Qt 6  
+- The server side of the framework must be dockerized.  
+- Everything server side must be highly optimized.
