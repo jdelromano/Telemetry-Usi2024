@@ -30,6 +30,12 @@ target_include_directories(${CMAKE_PROJECT_NAME} PUBLIC
 target_link_directories(${CMAKE_PROJECT_NAME} PUBLIC
     ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/lib
 )
+if(UNIX)
+    target_link_directories(${CMAKE_PROJECT_NAME} PUBLIC
+        ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/lib/x86_64-linux-gnu
+    )
+endif()
+
 
 if(WIN32)
     #on MSVC 17.3.2 not working anymore.
