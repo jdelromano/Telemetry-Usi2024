@@ -66,7 +66,7 @@ qt_add_executable(TelemetryClientApp
 # LIBRARIES
 #############################################################################################
 
-set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/ban_additional_libs)
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/custom_libs)
 target_link_libraries(TelemetryClientApp PUBLIC
     Qt::Core
     Qt::Gui

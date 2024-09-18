@@ -35,9 +35,6 @@ ExternalProject_Add(kuserfeedback_make
 )
 
 add_dependencies(${CMAKE_PROJECT_NAME} kuserfeedback_make)
-run_install_name_tool(kuserfeedback_make libKUserFeedbackCore)
-run_install_name_tool(kuserfeedback_make libKUserFeedbackWidgets)
-
 target_compile_definitions(${CMAKE_PROJECT_NAME} PUBLIC
     BA_ENABLE_KUSERFEEDBACK
 )
@@ -46,15 +43,22 @@ target_include_directories(${CMAKE_PROJECT_NAME} PUBLIC
     "${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/include/KF6/KUserFeedbackCore"
     "${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/include/KF6/KUserFeedbackWidgets"
 )
-if(CMAKE_BUILD_TYPE STREQUAL "Debug")
-    target_link_libraries(${CMAKE_PROJECT_NAME} PUBLIC KF6UserFeedbackCored)
-    target_link_libraries(${CMAKE_PROJECT_NAME} PUBLIC KF6UserFeedbackWidgetsd)
-    list(APPEND cList_libs_to_add ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/bin/KUserFeedbackCore${CMAKE_SHARED_LIBRARY_SUFFIX})
-    list(APPEND cList_libs_to_add ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/bin/KUserFeedbackWidgets${CMAKE_SHARED_LIBRARY_SUFFIX})
-else()
 
-    target_link_libraries(${CMAKE_PROJECT_NAME} PUBLIC KUserFeedbackCore)
-    target_link_libraries(${CMAKE_PROJECT_NAME} PUBLIC KUserFeedbackWidgets)
-    list(APPEND cList_libs_to_add ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/bin/KUserFeedbackCore${CMAKE_SHARED_LIBRARY_SUFFIX})
-    list(APPEND cList_libs_to_add ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/bin/KUserFeedbackWidgets${CMAKE_SHARED_LIBRARY_SUFFIX})
+set(kfNameCore "KF6UserFeedbackCore")
+set(kfNameWidgets "KF6UserFeedbackWidgets")
+if(WIN32)
+    if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+        set(kfNameCore "${kfNameCore}d")
+        set(kfNameWidgets "${kfNameWidgets}d")
+    endif()
+elseif(APPLE)
+    if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+        set(kfNameCore "${kfNameCore}_debug")
+        set(kfNameWidgets "${kfNameWidgets}_debug")
+    endif()
 endif()
+
+target_link_libraries(${CMAKE_PROJECT_NAME} PUBLIC ${kfNameCore})
+target_link_libraries(${CMAKE_PROJECT_NAME} PUBLIC ${kfNameWidgets})
+list(APPEND cList_libs_to_add ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/bin/${kfNameCore}${CMAKE_SHARED_LIBRARY_SUFFIX})
+list(APPEND cList_libs_to_add ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/bin/${kfNameWidgets}${CMAKE_SHARED_LIBRARY_SUFFIX})

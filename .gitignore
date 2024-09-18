@@ -28,8 +28,6 @@ ui_*.h
 *.qmlc
 *.jsc
 Makefile*
-*build-*
-*/build/*
 *.qm
 *.prl
 
@@ -54,3 +52,11 @@ compile_commands.json
 *creator.user*
 
 *_qmlcache.qrc
+
+#Mac
+.DS_Store
+*.DS_Store
+
+#Build dirs
+*build-*
+*/build/*
