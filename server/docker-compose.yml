@@ -1,0 +1,29 @@
+services:
+  php-app:
+    build: .
+    ports:
+      - "1984:1984"
+    depends_on:
+      - db
+    environment:
+      - MYSQL_HOST=db
+      - MYSQL_DATABASE=user_feedback
+      - MYSQL_USER=banana
+      - MYSQL_PASSWORD=banana
+      - MYSQL_ROOT_PASSWORD=banana
+
+  db:
+    image: mysql:8.0
+    ports:
+      - "3306:3306"
+    environment:
+      - MYSQL_ROOT_PASSWORD=banana
+      - MYSQL_DATABASE=user_feedback
+      - MYSQL_USER=banana
+      - MYSQL_PASSWORD=banana
+    volumes:
+      - db_data:/var/lib/mysql
+
+volumes:
+  db_data:
+
