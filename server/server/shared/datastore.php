@@ -81,7 +81,12 @@ public function beginTransaction()
 /** Commit transaction. */
 public function commit()
 {
+try {
+    // Perform database operations
     $this->db->commit();
+} catch (Exception $e) {
+    
+}
 }
 
 /** Abort an ongoing transaction. */
