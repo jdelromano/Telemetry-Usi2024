@@ -1,0 +1,48 @@
+name: Docker Compose Build and Test in Server Directory
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v2
+
+    - name: Set up Docker Compose
+      run: |
+        sudo apt-get update
+        sudo apt-get install docker-compose -y
+
+    - name: Build and Run Docker Compose in server directory
+      working-directory: ./server
+      run: |
+        docker-compose up -d --build
+
+    - name: Ping the server until healthy (max 10 retries)
+      run: |
+        for i in {1..10}; do
+          if curl --fail http://localhost:1984/analytics/check_schema; then
+            echo "Server is healthy!"
+            exit 0
+          fi
+          echo "Attempt $i: Waiting for php-app to be healthy..."
+          sleep 5
+        done
+        echo "Server did not become healthy after 10 attempts"
+        exit 1
+
+    - name: Shut down Docker Compose
+      working-directory: ./server
+      run: |
+        docker-compose down
