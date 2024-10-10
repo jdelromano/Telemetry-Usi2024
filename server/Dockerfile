@@ -1,6 +1,6 @@
 # Use the official PHP image as the base image
 FROM php:8.2-cli
-
+COPY ./php.ini /usr/local/etc/php/php.ini
 # Install necessary PHP extensions for MySQL
 RUN docker-php-ext-install mysqli pdo pdo_mysql
 
