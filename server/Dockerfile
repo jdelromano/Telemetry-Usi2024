@@ -1,15 +1,23 @@
-# Use the official PHP image as the base image
-FROM php:8.0-apache
-COPY ./php.ini /usr/local/etc/php/conf.d/php.ini
-# Install necessary PHP extensions for MySQL
-RUN docker-php-ext-install mysqli pdo pdo_mysql
+# Use an official PHP-Apache image
+FROM php:8.2-apache
 
-# Set the working directory inside the container
-WORKDIR /var/www/html
+# Install necessary PHP extensions for MySQL, SQLite, and PostgreSQL
+RUN docker-php-ext-install pdo pdo_mysql mysqli 
 
-# Copy the PHP application code into the container
-COPY ./server/ .
+# Enable Apache mod_rewrite
+RUN a2enmod rewrite
 
-# Expose the port the PHP built-in server will run on
+# Copy the server files to the container
+COPY server /var/www/html/
+
+# Copy the Apache configuration
+COPY apache-config.conf /etc/apache2/sites-available/000-default.conf
+
+# Copy the php configuration
+COPY php.ini /usr/local/etc/php/ 
+
+# Set file permissions for Apache
+RUN chown -R www-data:www-data /var/www/html
+
+# Expose port 80 for the web server
 EXPOSE 80
-
