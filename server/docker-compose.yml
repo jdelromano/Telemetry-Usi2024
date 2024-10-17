@@ -2,7 +2,7 @@ services:
   php-app:
     build: .
     ports:
-      - "1984:1984"
+      - "1984:80"
     depends_on:
       - db
     environment:
