@@ -2,6 +2,14 @@
 
 ### Usage
 
+First, copy the file `example.env` to `.env` using the following command:
+
+```bash
+cp example.env .env
+```
+
+then edit the file adding your custom entries.
+
 inside the `server` folder, run the following command:
 
 ```bash
@@ -15,9 +23,18 @@ Concept, so passwords and sensitive data is hardcoded.
 
 This docker-compose is made of two parts: an Apache server and a mysql database.
 
+<<<<<<< HEAD
 The Apache server is a lightweight and basic image, to keep everything as slim
 and simple as possible. The database is mysql and not sqlite due to requirements
 given by Banana.ch
+||||||| parent of fc7b2b8 (Final touches)
+The php server is a lightweight and basic image, to keep everything as slim and simple as possible.
+The database is mysql and not sqlite due to requirements given by Banan.ch
+=======
+The php server is a lightweight and basic image, to keep everything as slim and
+simple as possible. The database is mysql and not sqlite due to requirements
+given by Banan.ch
+>>>>>>> fc7b2b8 (Final touches)
 
 ### Errors
 
