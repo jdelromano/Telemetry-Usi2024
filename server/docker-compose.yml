@@ -2,18 +2,18 @@ services:
   php-app:
     build: .
     ports:
-      - "1984:80"
+      - "${PHP_PORT}:80"
     depends_on:
       - db
     env_file:
-        - ./example.env
+        - .env
 
   db:
     image: mysql:8.0
     ports:
-      - "3306:3306"
+      - "${MYSQL_PORT}:3306"
     env_file:
-        - ./example.env
+        - .env
     volumes:
       - db_data:/var/lib/mysql
 
