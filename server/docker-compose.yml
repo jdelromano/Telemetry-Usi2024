@@ -5,22 +5,15 @@ services:
       - "1984:80"
     depends_on:
       - db
-    environment:
-      - MYSQL_HOST=db
-      - MYSQL_DATABASE=user_feedback
-      - MYSQL_USER=banana
-      - MYSQL_PASSWORD=banana
-      - MYSQL_ROOT_PASSWORD=banana
+    env_file:
+        - ./example.env
 
   db:
     image: mysql:8.0
     ports:
       - "3306:3306"
-    environment:
-      - MYSQL_ROOT_PASSWORD=banana
-      - MYSQL_DATABASE=user_feedback
-      - MYSQL_USER=banana
-      - MYSQL_PASSWORD=banana
+    env_file:
+        - ./example.env
     volumes:
       - db_data:/var/lib/mysql
 

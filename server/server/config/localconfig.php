@@ -6,24 +6,10 @@
  */
 
 /* Database driver: sqlite, mysql or pgsql */
-// $USERFEEDBACK_DB_DRIVER = 'sqlite';
-$USERFEEDBACK_DB_DRIVER = 'mysql';
-// $USERFEEDBACK_DB_DRIVER = 'pgsql';
-
-/* Database server host (ignored for sqlite) */
-$USERFEEDBACK_DB_HOST = 'db';
-
-/* Database server port (ignored for sqlite). */
-$USERFEEDBACK_DB_PORT = 3306;
-// $USERFEEDBACK_DB_PORT = 5432;
-
-/* Database name (filename for sqlite). */
-// $USERFEEDBACK_DB_NAME =  __DIR__ . '/../data/db.sqlite';
-$USERFEEDBACK_DB_NAME = 'user_feedback';
-
-/* Database user name (ignored for sqlite). */
-$USERFEEDBACK_DB_USERNAME = 'banana';
-
-/* Database password (ignored for sqlite). */
-$USERFEEDBACK_DB_PASSWORD = 'banana';
+$USERFEEDBACK_DB_DRIVER=getenv('MYSQL_DRIVER');
+$USERFEEDBACK_DB_HOST=getenv('MYSQL_HOST');
+$USERFEEDBACK_DB_PORT=getenv('MYSQL_PORT');
+$USERFEEDBACK_DB_NAME=getenv('MYSQL_DATABASE');
+$USERFEEDBACK_DB_USERNAME=getenv('MYSQL_USER');
+$USERFEEDBACK_DB_PASSWORD=getenv('MYSQL_PASSWORD');
 ?>
