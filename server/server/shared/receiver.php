@@ -36,14 +36,16 @@ function post_submit($productName)
 
     Sample::insert($db, $rawPostData, $product);
 
-    // read survey from db
-    $responseData = array();
-    $surveys = Survey::activeSurveysForProduct($db, $product);
-    $responseData['surveys'] = $surveys;
     $db->commit();
+    // read survey from db
+    // $responseData = array();
+    // $surveys = Survey::activeSurveysForProduct($db, $product);
+    // $responseData['surveys'] = $surveys;
+    // $db->commit();
+    //
+    // header('Content-Type: text/json');
+    // echo(json_encode($responseData));
 
-    header('Content-Type: text/json');
-    echo(json_encode($responseData));
 }
 
 }
