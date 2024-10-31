@@ -24,6 +24,11 @@ jobs:
         sudo apt-get update
         sudo apt-get install docker-compose -y
 
+    - name: Copy example.env to .env
+      working-directory: ./server
+      run: |
+        cp example.env .env
+
     - name: Build and Run Docker Compose in server directory
       working-directory: ./server
       run: |

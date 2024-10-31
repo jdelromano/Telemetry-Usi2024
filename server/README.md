@@ -16,25 +16,15 @@ inside the `server` folder, run the following command:
 docker-compose up --build -d
 ```
 
-This will run the service in the background. At the moment, it's just a Proof of
-Concept, so passwords and sensitive data is hardcoded.
+This will run the service in the background.
 
 ### Documentation
 
 This docker-compose is made of two parts: an Apache server and a mysql database.
 
-<<<<<<< HEAD
 The Apache server is a lightweight and basic image, to keep everything as slim
 and simple as possible. The database is mysql and not sqlite due to requirements
 given by Banana.ch
-||||||| parent of fc7b2b8 (Final touches)
-The php server is a lightweight and basic image, to keep everything as slim and simple as possible.
-The database is mysql and not sqlite due to requirements given by Banan.ch
-=======
-The php server is a lightweight and basic image, to keep everything as slim and
-simple as possible. The database is mysql and not sqlite due to requirements
-given by Banan.ch
->>>>>>> fc7b2b8 (Final touches)
 
 ### Errors
 
