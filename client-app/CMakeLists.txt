@@ -60,6 +60,7 @@ qt_add_executable(TelemetryClientApp
     newaddresstab.cpp newaddresstab.h
     tablemodel.cpp tablemodel.h
     MANUAL_FINALIZATION
+    telemetry.cpp telemetry.h
 )
 
 #############################################################################################

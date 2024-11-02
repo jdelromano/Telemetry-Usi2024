@@ -2,15 +2,17 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR BSD-3-Clause
 
 #include "mainwindow.h"
+#include "telemetry.h"
 
 #include <QAction>
 #include <QFileDialog>
 #include <QMenuBar>
 
 //! [0]
-MainWindow::MainWindow()
+MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(),
-      addressWidget(new AddressWidget)
+      telemetry(new Telemetry(this)),
+      addressWidget(new AddressWidget(telemetry, this))
 {
     setCentralWidget(addressWidget);
     createMenus();

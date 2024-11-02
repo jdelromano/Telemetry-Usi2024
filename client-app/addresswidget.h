@@ -11,6 +11,8 @@
 #include <QTabWidget>
 #include <QStandardPaths>
 
+#include "telemetry.h"
+
 QT_BEGIN_NAMESPACE
 class QSortFilterProxyModel;
 class QItemSelectionModel;
@@ -22,7 +24,7 @@ class AddressWidget : public QTabWidget
     Q_OBJECT
 
 public:
-    AddressWidget(QWidget *parent = nullptr);
+    AddressWidget(Telemetry* telemetryInstance, QWidget *parent = nullptr);
     void readFromFile();
     void writeToFile();
 
@@ -37,6 +39,8 @@ signals:
 
 private:
     void setupTabs();
+
+    Telemetry *telemetry;
 
     inline static QString fileName =
         QStandardPaths::standardLocations(QStandardPaths::TempLocation).value(0)

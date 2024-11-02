@@ -6,9 +6,12 @@
 
 #include <QtWidgets>
 
+#include "telemetry.h"
+
 //! [0]
-NewAddressTab::NewAddressTab(QWidget *parent)
-    : QWidget(parent)
+NewAddressTab::NewAddressTab(Telemetry* telemetryInstance, QWidget *parent)
+    : QWidget(parent),
+    telemetry(telemetryInstance)
 {
     auto descriptionLabel = new QLabel(tr("There are currently no contacts in your address book. "
                                           "\nClick Add to add new contacts."));
@@ -28,6 +31,10 @@ NewAddressTab::NewAddressTab(QWidget *parent)
 //! [1]
 void NewAddressTab::addEntry()
 {
+
+    if (telemetry)
+        telemetry->incrementButtonPressCount();
+
     AddDialog aDialog;
 
     if (aDialog.exec())

@@ -6,6 +6,8 @@
 
 #include <QWidget>
 
+#include "telemetry.h"
+
 QT_BEGIN_NAMESPACE
 class QLabel;
 class QPushButton;
@@ -18,13 +20,22 @@ class NewAddressTab : public QWidget
     Q_OBJECT
 
 public:
-    NewAddressTab(QWidget *parent = nullptr);
+    NewAddressTab(Telemetry* telemetryInstance, QWidget *parent = nullptr);
 
 public slots:
     void addEntry();
 
 signals:
     void sendDetails(const QString &name, const QString &address);
+    void entryCountChanged(int count);
+    void entryAdded();
+    
+private:
+    int addCounter;
+    QLabel *countLabel;
+    void handleAddEntry();
+
+    Telemetry *telemetry;
 };
 //! [0]
 

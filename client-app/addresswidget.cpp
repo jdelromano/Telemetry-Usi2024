@@ -3,15 +3,20 @@
 
 #include "addresswidget.h"
 #include "adddialog.h"
+#include "telemetry.h"
 
 #include <QtWidgets>
 
 //! [0]
-AddressWidget::AddressWidget(QWidget *parent)
+// Constructor for AddressWidget
+AddressWidget::AddressWidget(Telemetry* telemetryInstance, QWidget *parent)
     : QTabWidget(parent),
+    telemetry(telemetryInstance),
       table(new TableModel(this)),
-      newAddressTab(new NewAddressTab(this))
+      newAddressTab(new NewAddressTab(telemetryInstance, this))
 {
+    connect(newAddressTab, &NewAddressTab::entryAdded,
+            telemetry, &Telemetry::incrementAddMenuPressCount);
     connect(newAddressTab, &NewAddressTab::sendDetails,
         this, &AddressWidget::addEntry);
 
@@ -24,6 +29,9 @@ AddressWidget::AddressWidget(QWidget *parent)
 //! [2]
 void AddressWidget::showAddEntryDialog()
 {
+    if (telemetry)
+        telemetry->incrementAddMenuPressCount();
+
     AddDialog aDialog;
 
     if (aDialog.exec())

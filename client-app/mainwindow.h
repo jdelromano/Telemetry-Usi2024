@@ -7,6 +7,7 @@
 #include "addresswidget.h"
 
 #include <QMainWindow>
+#include "telemetry.h"
 
 //! [0]
 class MainWindow : public QMainWindow
@@ -14,7 +15,7 @@ class MainWindow : public QMainWindow
     Q_OBJECT
 
 public:
-    MainWindow();
+    MainWindow(QWidget *parent = nullptr);
 
 private slots:
     void updateActions(const QItemSelection &selection);
@@ -22,11 +23,16 @@ private slots:
     void saveFile();
 
 private:
+    Telemetry *telemetry;
+    int addCounter;
+
     void createMenus();
 
     AddressWidget *addressWidget;
     QAction *editAct;
     QAction *removeAct;
+
+    QLabel *entryCountLabel;
 };
 //! [0]
 
