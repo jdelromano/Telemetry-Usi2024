@@ -1,0 +1,17 @@
+apiVersion: 1
+
+datasources:
+  - name: KUserFeedback Data
+    uid: kuserfeedback_data
+    type: mysql
+    access: proxy
+    url: db # The name of the MySQL service in the docker-compose file
+    isDefault: true
+    editable: true
+    database: ${MYSQL_DATABASE}
+    user: ${GRAFANA_READER_USERNAME}
+    secureJsonData:
+      password: ${GRAFANA_READER_PASSWORD}
+    jsonData:
+      tlsSkipVerify: true
+      timeInterval: "5s"

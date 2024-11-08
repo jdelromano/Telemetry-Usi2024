@@ -24,7 +24,7 @@
     {
       "datasource": {
         "type": "mysql",
-        "uid": "fe3bpxkxs9khsb"
+        "uid": "kuserfeedback_data"
       },
       "fieldConfig": {
         "defaults": {
@@ -136,7 +136,7 @@
     {
       "datasource": {
         "type": "mysql",
-        "uid": "fe3bpxkxs9khsb"
+        "uid": "kuserfeedback_data"
       },
       "fieldConfig": {
         "defaults": {
