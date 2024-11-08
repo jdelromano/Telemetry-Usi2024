@@ -30,17 +30,31 @@ to display the data stored in the database.
 
 ### First steps
 
-Everything will start automatically, but you need to login to Grafana with the
-default credentials:
+Everything will deploy automatically, you just have to login to grafana with the
+following credentials:
 
 - user: admin
-- password: admin then you will be asked to change the password. after that, you
-  need to add a new data source, with the following parameters:
-- type: mysql
-- host: db (this is the name of the mysql container on docker)
-- database name: user_feedback
-- username: grafanaReader
-- password: grafanaReader (this is the default in example.env)
+- password: admin
+
+Then you will be prompted to change the password. After that, you will be able
+to see the dashboard, edit it and create new ones.
+
+### Database
+
+The database will be empty at the beginning, but you can populate it with with
+dummy data provided in the `mock_data.sql` file. Before doing this, you have to
+access the server through UserFeedbackConsole and create a new product, then
+adding a new schema. Dummy data require the "CPU Information" template. To do
+so, you can run the following command:
+
+```bash
+source .env
+docker exec -i server-db-1 mysql -u root -p${MYSQL_ROOT_PASSWORD} < mock_data.sql
+```
+
+This will populate the database with some dummy data, that you can use to test
+the dashboard. Be careful, since the `server-db-1` container name may change,
+depending on your machine.
 
 ### Errors
 
