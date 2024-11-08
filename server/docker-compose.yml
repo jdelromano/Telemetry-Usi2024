@@ -15,18 +15,20 @@ services:
       - "${HOST_MYSQL_PORT}:${MYSQL_PORT}"
     env_file:
         - .env
+    volumes:
+        - db_data:/var/lib/mysql
+        - ./mysql_entrypoint_scripts:/docker-entrypoint-initdb.d
     healthcheck:
       test: ["CMD-SHELL", "mysql --user=$MYSQL_USER --password=$MYSQL_PASSWORD --execute='SELECT 1;'"]
       interval: 5s
       retries: 10
-    volumes:
-      - db_data:/var/lib/mysql
+
 
   grafana:
     image: grafana/grafana
     restart: unless-stopped
     ports:
-      - "3000:3000"
+      - "${HOST_GRAFANA_PORT}:3000"
     env_file:
         - .env
     volumes:
