@@ -18,7 +18,7 @@
                     "type": "bool"
                 },
                 {
-                    "name": "checkbox3",
+                    "name": "chackbox3",
                     "type": "bool"
                 }
             ],

@@ -1,0 +1,2 @@
+
+[{"uuid":"{dcd58c87-72ff-46d7-8029-91a6e79137b9}","name":"Current Version","url":"http:\/\/localhost:1984\/receiver\/submit\/Banana","active":true,"target":"product.version >= \"8.1\""}]
