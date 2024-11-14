@@ -49,12 +49,11 @@ so, you can run the following command:
 
 ```bash
 source .env
-docker exec -i server-db-1 mysql -u root -p${MYSQL_ROOT_PASSWORD} < mock_data.sql
+docker exec -i kuserfeedback-db mysql -u root -p${MYSQL_ROOT_PASSWORD} < mock_data.sql
 ```
 
 This will populate the database with some dummy data, that you can use to test
-the dashboard. Be careful, since the `server-db-1` container name may change,
-depending on your machine.
+the dashboard.
 
 ### Errors
 
