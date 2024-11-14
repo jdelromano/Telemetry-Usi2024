@@ -1,40 +1,7 @@
 {
     "aggregation": [
-        {
-            "elements": [
-                {
-                    "schemaEntry": "cpu",
-                    "schemaEntryElement": "architecture",
-                    "type": "value"
-                }
-            ],
-            "name": "CPU Architecture Distribution",
-            "type": "category"
-        },
-        {
-            "elements": [
-                {
-                    "schemaEntry": "cpu",
-                    "schemaEntryElement": "count",
-                    "type": "value"
-                }
-            ],
-            "name": "CPU Count Distribution",
-            "type": "numeric"
-        },
-        {
-            "elements": [
-                {
-                    "schemaEntry": "",
-                    "schemaEntryElement": "",
-                    "type": "value"
-                }
-            ],
-            "name": "Usage Time Distribution",
-            "type": "numeric"
-        }
     ],
-    "name": "Banana",
+    "name": "banana",
     "schema": [
         {
             "elements": [
@@ -51,7 +18,7 @@
                     "type": "bool"
                 },
                 {
-                    "name": "checkbox3",
+                    "name": "chackbox3",
                     "type": "bool"
                 }
             ],
