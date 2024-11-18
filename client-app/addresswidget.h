@@ -3,28 +3,28 @@
 
 #ifndef ADDRESSWIDGET_H
 #define ADDRESSWIDGET_H
+\
 
 #include "newaddresstab.h"
 #include "tablemodel.h"
-
 #include <QItemSelection>
 #include <QTabWidget>
 #include <QStandardPaths>
-
-#include "telemetry.h"
+#include <QTabWidget>
 
 QT_BEGIN_NAMESPACE
 class QSortFilterProxyModel;
 class QItemSelectionModel;
 QT_END_NAMESPACE
 
+class Telemetry; // Forward declaration
 //! [0]
 class AddressWidget : public QTabWidget
 {
     Q_OBJECT
 
 public:
-    AddressWidget(Telemetry* telemetryInstance, QWidget *parent = nullptr);
+    AddressWidget(Telemetry* telemetry, QWidget *parent = nullptr); // Constructor updated to accept telemetry
     void readFromFile();
     void writeToFile();
 
@@ -33,14 +33,15 @@ public slots:
     void addEntry(const QString &name, const QString &address);
     void editEntry();
     void removeEntry();
+    void openDialog();
 
 signals:
-    void selectionChanged (const QItemSelection &selected);
+    void selectionChanged(const QItemSelection &selected);
 
 private:
     void setupTabs();
 
-    Telemetry *telemetry;
+    Telemetry *telemetry; // Declare telemetry object
 
     inline static QString fileName =
         QStandardPaths::standardLocations(QStandardPaths::TempLocation).value(0)

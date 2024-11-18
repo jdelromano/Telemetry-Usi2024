@@ -35,6 +35,9 @@ class TableModel : public QAbstractTableModel
     Q_OBJECT
 
 public:
+
+    void storeOrUpdateValue(const QStringList &path, const QString &value, const QString &TODO);
+
     TableModel(QObject *parent = nullptr);
     TableModel(const QList<Contact> &contacts, QObject *parent = nullptr);
 

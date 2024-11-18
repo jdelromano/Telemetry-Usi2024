@@ -4,10 +4,13 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
-#include "addresswidget.h"
-
 #include <QMainWindow>
-#include "telemetry.h"
+#include <QLabel>
+#include <qitemselectionmodel.h>
+
+class Telemetry; // Forward declaration
+class AddressWidget;
+
 
 //! [0]
 class MainWindow : public QMainWindow
@@ -16,15 +19,31 @@ class MainWindow : public QMainWindow
 
 public:
     MainWindow(QWidget *parent = nullptr);
+    //QMap<QString, QString> db;
+
+    void updateDB(const QString &key, const QString &value);
+        QString getDBValue(const QString &key) const;
+
 
 private slots:
     void updateActions(const QItemSelection &selection);
     void openFile();
     void saveFile();
+    void openDialog();  // Slot for opening the new dialog
 
 private:
+    //QMap<QString, QJsonValue> db;
+    QMap<QString, QString> db;
     Telemetry *telemetry;
     int addCounter;
+
+    void createDB();
+
+    QAction *openDialogAct;  // Action to open the dialog
+
+public:
+    const QMap<QString, QString>& getdb() const;
+
 
     void createMenus();
 

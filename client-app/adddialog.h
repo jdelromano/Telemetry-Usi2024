@@ -21,9 +21,9 @@ class AddDialog : public QDialog
 public:
     AddDialog(QWidget *parent = nullptr);
 
-    QString name() const;
-    QString address() const;
-    void editAddress(const QString &name, const QString &address);
+    QString name() ;
+    QString address() ;
+    void editAddress( QString &name,  QString &address);
 
 private:
     QLineEdit *nameText;

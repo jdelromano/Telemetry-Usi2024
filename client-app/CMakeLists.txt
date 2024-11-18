@@ -11,7 +11,7 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin_${CMAKE_BUILD_TYPE})
 # Apple related
 set(CMAKE_OSX_ARCHITECTURES arm64;x86_64)
 
-project(TelemetryClientApp LANGUAGES CXX)
+project(telemetryClientApp LANGUAGES CXX)
 
 #############################################################################################
 # Deployment base settings
@@ -52,7 +52,7 @@ find_package(Qt6 REQUIRED COMPONENTS Core Gui Widgets Network)
 #############################################################################################
 # My binary
 #############################################################################################
-qt_add_executable(TelemetryClientApp
+qt_add_executable(telemetryClientApp
     adddialog.cpp adddialog.h
     addresswidget.cpp addresswidget.h
     main.cpp
@@ -61,6 +61,8 @@ qt_add_executable(TelemetryClientApp
     tablemodel.cpp tablemodel.h
     MANUAL_FINALIZATION
     telemetry.cpp telemetry.h
+    dialog.cpp
+    dialog.h
 )
 
 #############################################################################################
@@ -68,7 +70,7 @@ qt_add_executable(TelemetryClientApp
 #############################################################################################
 
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/custom_libs)
-target_link_libraries(TelemetryClientApp PUBLIC
+target_link_libraries(telemetryClientApp PUBLIC
     Qt::Core
     Qt::Gui
     Qt::Widgets

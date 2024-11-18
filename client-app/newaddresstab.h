@@ -4,9 +4,9 @@
 #ifndef NEWADDRESSTAB_H
 #define NEWADDRESSTAB_H
 
+#include "telemetry.h"
 #include <QWidget>
 
-#include "telemetry.h"
 
 QT_BEGIN_NAMESPACE
 class QLabel;
@@ -20,7 +20,9 @@ class NewAddressTab : public QWidget
     Q_OBJECT
 
 public:
-    NewAddressTab(Telemetry* telemetryInstance, QWidget *parent = nullptr);
+    NewAddressTab(
+        Telemetry* telemetry,
+        QWidget *parent = nullptr);
 
 public slots:
     void addEntry();

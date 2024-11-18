@@ -40,17 +40,17 @@ AddDialog::AddDialog(QWidget *parent)
     setWindowTitle(tr("Add a Contact"));
 }
 
-QString AddDialog::name() const
+QString AddDialog::name() 
 {
     return nameText->text();
 }
 
-QString AddDialog::address() const
+QString AddDialog::address() 
 {
     return addressText->toPlainText();
 }
 
-void AddDialog::editAddress(const QString &name, const QString &address)
+void AddDialog::editAddress( QString &name,  QString &address)
 {
     nameText->setReadOnly(true);
     nameText->setText(name);

@@ -3,40 +3,62 @@
 
 #include "addresswidget.h"
 #include "adddialog.h"
+#include "dialog.h"
 #include "telemetry.h"
 
 #include <QtWidgets>
 
 //! [0]
 // Constructor for AddressWidget
-AddressWidget::AddressWidget(Telemetry* telemetryInstance, QWidget *parent)
-    : QTabWidget(parent),
-    telemetry(telemetryInstance),
-      table(new TableModel(this)),
-      newAddressTab(new NewAddressTab(telemetryInstance, this))
-{
-    connect(newAddressTab, &NewAddressTab::entryAdded,
-            telemetry, &Telemetry::incrementAddMenuPressCount);
-    connect(newAddressTab, &NewAddressTab::sendDetails,
-        this, &AddressWidget::addEntry);
 
+AddressWidget::AddressWidget(Telemetry* telemetry, QWidget *parent)
+    : QTabWidget(parent),
+    telemetry(telemetry),
+    table(new TableModel(this)),
+    newAddressTab(new NewAddressTab(telemetry, this)) // Pass telemetryInstance to NewAddressTab
+{
+    // Update the counter using storeOrUpdateValue with the key "addMenu_counter"
+    connect(newAddressTab, &NewAddressTab::entryAdded,
+            this, [this, &telemetry]() {
+                // Increment or set the value using telemetry
+        //test
+                //telemetry->storeOrUpdateValue("addMenuounter", "1");
+                //telemetry->storeOrUpdateValue("addMenuCounter", QString("1"));
+
+            });
+
+    // Connect sendDetails signal to the addEntry method
+    connect(newAddressTab, &NewAddressTab::sendDetails,
+            this, &AddressWidget::addEntry);
+
+    // Add the NewAddressTab to the QTabWidget
     addTab(newAddressTab, tr("Address Book"));
 
+    // Initialize tabs (additional setup)
     setupTabs();
 }
+
 //! [0]
 
 //! [2]
 void AddressWidget::showAddEntryDialog()
 {
-    if (telemetry)
-        telemetry->incrementAddMenuPressCount();
+        telemetry->incCount("addToolMenu");
 
     AddDialog aDialog;
 
-    if (aDialog.exec())
-        addEntry(aDialog.name(), aDialog.address());
+    // If the dialog was accepted, add the entry
+    if (aDialog.exec()) {
+        // Store the dialog's results in non-const variables
+        QString name = aDialog.name();
+        QString address = aDialog.address();
+
+        // Now pass these non-const lvalues to addEntry
+        addEntry(name, address);
+    }
 }
+
+
 //! [2]
 
 //! [3]
@@ -67,12 +89,12 @@ void AddressWidget::editEntry()
     QSortFilterProxyModel *proxy = static_cast<QSortFilterProxyModel*>(temp->model());
     QItemSelectionModel *selectionModel = temp->selectionModel();
 
-    const QModelIndexList indexes = selectionModel->selectedRows();
+     QModelIndexList indexes = selectionModel->selectedRows();
     QString name;
     QString address;
     int row = -1;
 
-    for (const QModelIndex &index : indexes) {
+    for ( QModelIndex &index : indexes) {
         row = proxy->mapToSource(index).row();
         QModelIndex nameIndex = table->index(row, 0, QModelIndex());
         QVariant varName = table->data(nameIndex, Qt::DisplayRole);
@@ -90,9 +112,9 @@ void AddressWidget::editEntry()
     aDialog.editAddress(name, address);
 
     if (aDialog.exec()) {
-        const QString newAddress = aDialog.address();
+         QString newAddress = aDialog.address();
         if (newAddress != address) {
-            const QModelIndex index = table->index(row, 1, QModelIndex());
+             QModelIndex index = table->index(row, 1, QModelIndex());
             table->setData(index, newAddress, Qt::EditRole);
         }
     }
@@ -106,7 +128,7 @@ void AddressWidget::removeEntry()
     QSortFilterProxyModel *proxy = static_cast<QSortFilterProxyModel*>(temp->model());
     QItemSelectionModel *selectionModel = temp->selectionModel();
 
-    const QModelIndexList indexes = selectionModel->selectedRows();
+     QModelIndexList indexes = selectionModel->selectedRows();
 
     for (QModelIndex index : indexes) {
         int row = proxy->mapToSource(index).row();
@@ -122,11 +144,11 @@ void AddressWidget::removeEntry()
 void AddressWidget::setupTabs()
 {
     using namespace Qt::StringLiterals;
-    const auto groups = { "ABC"_L1, "DEF"_L1, "GHI"_L1, "JKL"_L1, "MNO"_L1, "PQR"_L1,
+     auto groups = { "ABC"_L1, "DEF"_L1, "GHI"_L1, "JKL"_L1, "MNO"_L1, "PQR"_L1,
                           "STU"_L1, "VW"_L1, "XYZ"_L1 };
 
     for (QLatin1StringView str : groups) {
-        const auto regExp = QRegularExpression(QLatin1StringView("^[%1].*").arg(str),
+         auto regExp = QRegularExpression(QLatin1StringView("^[%1].*").arg(str),
                                                QRegularExpression::CaseInsensitiveOption);
 
         auto proxyModel = new QSortFilterProxyModel(this);
@@ -175,7 +197,7 @@ void AddressWidget::readFromFile()
         QMessageBox::information(this, tr("No contacts in file"),
                                  tr("The file you are attempting to open contains no contacts."));
     } else {
-        for (const auto &contact: std::as_const(contacts))
+        for ( auto &contact: std::as_const(contacts))
             addEntry(contact.name, contact.address);
     }
 }
@@ -195,3 +217,19 @@ void AddressWidget::writeToFile()
     out << table->getContacts();
 }
 //! [6]
+
+void AddressWidget::openDialog()
+{
+    Telemetry* telemetryInstance = this->telemetry;
+    Dialog *dialog = new Dialog(telemetryInstance, this);
+    dialog->setWindowTitle(tr("Standard Dialog"));
+
+    if (!QGuiApplication::styleHints()->showIsFullScreen() && !QGuiApplication::styleHints()->showIsMaximized()) {
+         QRect availableGeometry = dialog->screen()->availableGeometry();
+        dialog->resize(availableGeometry.width() / 3, availableGeometry.height() * 2 / 3);
+        dialog->move((availableGeometry.width() - dialog->width()) / 2,
+                     (availableGeometry.height() - dialog->height()) / 2);
+    }
+
+    dialog->show();
+}

@@ -37,7 +37,7 @@ QVariant TableModel::data(const QModelIndex &index, int role) const
         return QVariant();
 
     if (role == Qt::DisplayRole) {
-        const auto &contact = contacts.at(index.row());
+         auto &contact = contacts.at(index.row());
 
         switch (index.column()) {
             case 0:
@@ -104,7 +104,7 @@ bool TableModel::removeRows(int position, int rows, const QModelIndex &index)
 bool TableModel::setData(const QModelIndex &index, const QVariant &value, int role)
 {
     if (index.isValid() && role == Qt::EditRole) {
-        const int row = index.row();
+         int row = index.row();
         auto contact = contacts.value(row);
 
         switch (index.column()) {

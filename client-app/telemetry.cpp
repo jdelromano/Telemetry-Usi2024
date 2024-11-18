@@ -1,5 +1,33 @@
 #include "telemetry.h"
+#include "mainwindow.h"
 
+//test TODO
+/*
+ * QSettings
+ * stores data across application sessions.
+ * uses the platform's native format for storing configuration
+ *  settings (e.g., registry on Windows, .ini files on Linux/macOS).
+*/
+
+#include <QSettings>
+#include <QVariant>
+#include <QDebug>
+#include <QNetworkAccessManager>
+#include <QNetworkRequest>
+#include <QNetworkReply>
+#include <QJsonDocument>
+#include <QJsonObject>
+#include <KUserFeedback/Provider>
+#include <KUserFeedback/UsageTimeSource>
+#include <KUserFeedback/PlatformInfoSource>
+#include <KUserFeedback/CompilerInfoSource>
+#include <QSysInfo>
+#include <QLocale>
+#include <QThread>
+#include <QTimeZone>
+#include <QUuid>
+#include <QTimer>
+#include <QElapsedTimer>
 #include <QDebug>
 #include <QNetworkAccessManager>
 #include <QNetworkRequest>
@@ -15,211 +43,237 @@
 #include <QThread>
 #include <QTimeZone>
 
-Telemetry::Telemetry(QObject *parent)
+// Constructor for Telemetry, initializing counters and setting up provider
+Telemetry::Telemetry(MainWindow* mainWindow, QObject *parent)
     : QObject(parent),
-    buttonPressCount(0),
-    addMenuCount(0),
-    provider(new KUserFeedback::Provider(this))
+    provider(new KUserFeedback::Provider(this)),
+    retryCount(0),
+    mainWindow(mainWindow)
 {
+    // Basic settings
+    int periodicFeedback_timeInterval = 1000;  // ms
+    int retryCount;
+
+    // Load old total time
+    QSettings settings;
+    totalTimeElapsed = settings.value("total_usage_time", 0).toInt();  // Load saved time, 0 if not present
+
+    // Set up provider data sources
     provider->addDataSource(new KUserFeedback::UsageTimeSource);
     provider->addDataSource(new KUserFeedback::PlatformInfoSource);
     provider->addDataSource(new KUserFeedback::CompilerInfoSource);
-    //provider->setSurveyInterval(24 * 60 * 60);  // Collect once per day
-    provider->setSurveyInterval(100);
+
+    provider->setSurveyInterval(100000);
     provider->setTelemetryMode(KUserFeedback::Provider::BasicUsageStatistics);
-    elapsedTimer.start(); // Start tracking time when open the app
 
-    connect(&feedbackTimer, &QTimer::timeout, this, &Telemetry::sendPeriodicFeedback);
-    feedbackTimer.start(10000);  // 10,000 milliseconds = 10 seconds
+    // Start the elapsed timer
+    elapsedTimer.start();  // Start the timer to track usage time
 
-    sendInitialTelemetryData();
+    // Start periodic feedback timer
+    connect(&feedbackTimer, &QTimer::timeout, this, &Telemetry::sendTelemetryData);
+    feedbackTimer.start(periodicFeedback_timeInterval);
+
+    settings.setValue("total_usage_time", totalTimeElapsed);
+
+    // Send initial telemetry data
+    sendTelemetryData();
+    qDebug() << "Done";
 }
 
-void Telemetry::sendInitialTelemetryData() {
-    QJsonObject json = prepareFeedbackJson("Application started", elapsedTimer.elapsed() / 1000);
-    // Convert JSON object to QJsonDocument
-    QJsonDocument doc(json);
-    QByteArray data = doc.toJson();
+//deconstruct
+/*
+Telemetry::~Telemetry()
+{
+    // Save total elapsed time on app close
+    int session_time = elapsedTimer.elapsed() / 1000;
+    totalTimeElapsed += session_time;
 
-    // Create network manager and send the POST request
+    //TODO: celete or save?
+    if(!tempDB.isEmpty()){
+        sendTelemetryData();
+    }
+
+    //QSettings settings;
+    //settings.setValue("total_usage_time", totalTimeElapsed);
+};
+*/
+
+//data
+// go in
+void Telemetry::checkAndUpdate(const QString &key, const QString &value) {
+    // Access db from MainWindow
+    const QMap<QString, QString> &db = mainWindow->getdb();
+
+    // Initialize tempDB entry with db's value or default to "0"
+    if (!tempDB.contains(key)) {
+        tempDB[key] = db.contains(key) ? db.value(key) : "0";
+    }
+
+    int currentValue = tempDB[key].toInt();
+    int newValue = value.toInt();
+
+    if (currentValue >= newValue) {
+        qDebug() << "No update needed for key:" << key << "Current value:" << currentValue << "New value:" << newValue;
+        return;
+    }
+
+    // Update tempDB with the new value
+    tempDB[key] = value;
+    qDebug() << "Updated tempDB. Key:" << key << ", Value:" << value;
+}
+
+
+void Telemetry::incCount(const QString field){
+    // Get value from  tempDB ("0" if not found)
+    int value = tempDB.value(field, "0").toInt();
+    value++;
+
+    //update
+    tempDB[field] = QString::number(value);
+
+    qDebug() << "Incremented count for" << field << ":" << value;
+    checkAndUpdate(field, QString::number(value));
+}
+
+//to server
+void Telemetry::sendTelemetryData()
+{
+    // Network settings
+    QString networkUrl = "http://0.0.0.0:1984/receiver/submit/telemetryapp";
+    QString contentType = "application/json";
+
     QNetworkAccessManager *manager = new QNetworkAccessManager(this);
-    QNetworkRequest request(QUrl("http://localhost:1984/receiver/submit/telemetryapp"));
-    request.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
+    QNetworkRequest request((QUrl(networkUrl)));
+    request.setHeader(QNetworkRequest::ContentTypeHeader, contentType);
 
-    QNetworkReply *reply = manager->post(request, data);
-    connect(reply, &QNetworkReply::finished, this, [reply]() {
+    // Convert map to JSON
+    if (tempDB.isEmpty()) {
+        qDebug() << "No telemetry data to send.";
+        return; // Nothing to send
+    }
+    QJsonObject jsonData = JSONToMap();
+    // Convert QJsonObject to JSON string for POST request
+    QJsonDocument jsonDoc(jsonData);
+    QByteArray jsonDataBytes = jsonDoc.toJson();
+
+    // Send JSON data via POST
+    QNetworkReply *reply = manager->post(request, jsonDataBytes);
+    connect(reply, &QNetworkReply::finished, this, [this, reply]() {
         if (reply->error() == QNetworkReply::NoError) {
-            qDebug() << "Initial telemetry data sent successfully.";
+            // Successful request, handle response
+            QByteArray responseData = reply->readAll();  // Read server's response
+            qDebug() << "Telemetry data sent successfully. Server response:" << responseData;
+
+            retryCount = 0;  // Reset retry count on success
         } else {
-            qDebug() << "Error sending initial telemetry data:" << reply->errorString();
+            // Handle error, display error message
+            qDebug() << "Error sending telemetry data:" << reply->errorString();
+            qDebug() << "Server response code:" << reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
+            qDebug() << "Server response body:" << reply->readAll();
+
+            retrySendingData(reply);
         }
         reply->deleteLater();
     });
 }
 
-//increment counters
-void Telemetry::incrementButtonPressCount() {
-    ++buttonPressCount;
-    qDebug() << "Main menu button pressed. Current count:" << buttonPressCount;
-    emit buttonPressCountChanged(buttonPressCount);
-    sendButtonPressCountFeedback(buttonPressCount);
+QJsonObject Telemetry::JSONToMap() {
+    QJsonObject jsonData;
+
+    if (!mainWindow) {
+        qDebug() << "MainWindow not available. Cannot update mainDB.";
+        return jsonData;
+    }
+
+    for (auto it = tempDB.begin(); it != tempDB.end();) {
+        // Fetch current value from mainDB
+        QString currentValue = mainWindow->getDBValue(it.key());
+        int currentIntValue = currentValue.toInt();
+
+        // Add the value from tempDB
+        int newValue = currentIntValue + it.value().toInt();
+
+        // Create JSON entry
+        QJsonObject counterObject;
+        counterObject["counter"] = QString::number(newValue);
+
+        // Insert into the JSON object
+        jsonData.insert(it.key(), counterObject);
+
+        // Update mainDB with the new value
+        mainWindow->updateDB(it.key(), QString::number(newValue));
+
+        // Remove the entry from tempDB
+        it = tempDB.erase(it);
+    }
+
+    // Log the JSON data for debugging
+    qDebug() << "Converted map to JSON:" << QJsonDocument(jsonData).toJson(QJsonDocument::Indented);
+
+    return jsonData;
 }
 
-void Telemetry::incrementAddMenuPressCount() {
-    ++addMenuCount;
-    qDebug() << "Add menu button pressed. Current count:" << addMenuCount;
-    emit addMenuCountChanged(addMenuCount);
-    sendUsageFeedback("User added a new entry");
-}
 
-void Telemetry::sendButtonPressCountFeedback(int count) {
-    QJsonObject json;
-    json["feedback"] = "User pressed the main menu button";
-    json["startCount"] = createCountJson(count);
-
-    QJsonDocument doc(json);
-    QByteArray data = doc.toJson();
-
-    QNetworkAccessManager *manager = new QNetworkAccessManager(this);
-    QNetworkRequest request(QUrl("http://localhost:1984/receiver/submit/telemetryapp"));
-    request.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
-
-    QNetworkReply *reply = manager->post(request, data);
-    connect(reply, &QNetworkReply::finished, this, [reply]() {
-        if (reply->error() == QNetworkReply::NoError) {
-            qDebug() << "Button press feedback sent successfully.";
-        } else {
-            qDebug() << "Error sending button press feedback:" << reply->errorString();
-        }
-        reply->deleteLater();
-    });
-}
-
-void Telemetry::sendPeriodicFeedback() {
-    if (buttonPressCount != lastButtonPressCount || addMenuCount != lastAddMenuCount) {
-        lastButtonPressCount = buttonPressCount;
-        lastAddMenuCount = addMenuCount;
-        sendUsageFeedback("Periodic feedback");
+void Telemetry::retrySendingData(QNetworkReply *reply)
+{
+    if (retryCount < 3) {
+        retryCount++;
+        qDebug() << "Retrying to send telemetry data... Retry count:" << retryCount;
+        //QTimer::singleShot(5000, this, &Telemetry::sendTelemetryData);  // Retry after 5 seconds
     } else {
-        qDebug() << "No changes detected. Skipping feedback.";
+        qDebug() << "Max retries reached. Abandoning telemetry data sending.";
     }
 }
+/*
+void Telemetry::sendPeriodicFeedback()
 
-void Telemetry::sendUsageFeedback(const QString &feedbackMessage) {
-    int usageTime = elapsedTimer.elapsed() / 1000; // Elapsed time in seconds
-    qDebug() << "Total usage time (in seconds):" << usageTime;
+    sendTelemetryData();
+    QJsonObject changedData;
 
-    // Prepare feedback data in JSON
-    QJsonObject json;
-    json["feedback"] = "User added a new entry"; // Adjust feedback message
+    auto checkAndUpdate(const QString &key, int &lastValue, int currentValue) {
+        if (lastValue != currentValue) {
+            QJsonObject counterObject;
+            counterObject["counter"] = QString::number(currentValue);
+            changedData[key] = counterObject;
+            lastValue = currentValue;
+        }
+    };
+}*/
 
-    // Add custom values - now it's the menu button counter
-    QJsonObject customData;
-    customData["custom1"] = "custom_value_1"; // Test data
-    customData["custom2"] = QString::number(addMenuCount);  // Test data
-    json["mainCustom"] = customData;
 
-    // Send usage time
-    json["usageTime"] = createCountJson(elapsedTimer.elapsed() / 1000); // Elapsed time in seconds
+//test
+// Function to send telemetry data
+/*
+void Telemetry::sendTelemetryData()
+{
+    // Network settings
+    QString networkUrl = "http://localhost:1984/receiver/submit/telemetryapp";
+    QString contentType = "application/json";
 
-    // Convert JSON object to QJsonDocument
-    QJsonDocument doc(json);
-    QByteArray data = doc.toJson();
-
-    // Create network manager and send the POST request
     QNetworkAccessManager *manager = new QNetworkAccessManager(this);
-    QNetworkRequest request(QUrl("http://localhost:1984/receiver/submit/telemetryapp"));
-    request.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
+    QNetworkRequest request((QUrl(networkUrl)));
+    request.setHeader(QNetworkRequest::ContentTypeHeader, contentType);
 
-    QNetworkReply *reply = manager->post(request, data);
-    connect(reply, &QNetworkReply::finished, this, [reply]() {
+    // Convert QMap to QJsonObject
+    QJsonObject jsonData;
+    for (auto it = tempDB.begin(); it != tempDB.end(); ++it) {
+        jsonData.insert(it.key(), QJsonValue::fromVariant(it.value().first));
+        if (it.value().second) {  // Only add if 'bool' value is true
+            jsonData.insert(it.key(), QJsonValue::fromVariant(it.value().first));
+        }
+    }
+
+    // Send JSON data
+    QNetworkReply *reply = manager->post(request, QJsonDocument(jsonData).toJson());
+    connect(reply, &QNetworkReply::finished, this, [this, reply]() {
         if (reply->error() == QNetworkReply::NoError) {
-            qDebug() << "Feedback sent successfully.";
+            qDebug() << "Telemetry tempDB sent successfully.";
+            retryCount = 0;  // Reset retry count on success
         } else {
-            qDebug() << "Error sending feedback:" << reply->errorString();
+            qDebug() << "Error sending telemetry data:" << reply->errorString();
+            retrySendingData(reply);
         }
         reply->deleteLater();
     });
 }
-
-QJsonObject Telemetry::prepareFeedbackJson(const QString &feedbackMessage, int usageTime) const {
-    QJsonObject json;
-    json["feedback"] = feedbackMessage;
-    json["startCount"] = createCountJson(buttonPressCount);
-    json["usageTime"] = createCountJson(usageTime);
-    json["timezone"] = createTimeZoneJson();
-    json["locale"] = createLocaleJson();
-    json["cpu"] = createCpuJson();
-    json["compiler"] = createCompilerJson();
-
-    //custom data
-    QJsonObject customData;
-    customData["custom1"] = "custom_value_1";
-    customData["custom2"] = QString::number(addMenuCount);
-    json["mainCustom"] = customData;
-
-    json["uuid"] = "d3b21baa-4a1b-b889-e03c80187f05";
-    return json;
-}
-
-QJsonObject Telemetry::createCountJson(int count) const {
-    QJsonObject countJson;
-    countJson["value"] = count;
-    return countJson;
-}
-
-QJsonObject Telemetry::createTimeZoneJson() const {
-    QTimeZone timeZone = QTimeZone::systemTimeZone();
-    QJsonObject timeZoneObj;
-    timeZoneObj["id"] = QString(timeZone.id());
-    timeZoneObj["offset"] = timeZone.offsetFromUtc(QDateTime::currentDateTime());
-    timeZoneObj["abbreviation"] = timeZone.abbreviation(QDateTime::currentDateTime());
-    return timeZoneObj;
-}
-
-QJsonObject Telemetry::createLocaleJson() const {
-    QLocale locale;
-    QJsonObject localeObj;
-    localeObj["language"] = locale.languageToString(locale.language());
-    localeObj["region"] = locale.countryToString(locale.country());
-    return localeObj;
-}
-
-QJsonObject Telemetry::createCpuJson() const {
-    QJsonObject cpuObj;
-    cpuObj["architecture"] = QSysInfo::currentCpuArchitecture();
-    cpuObj["count"] = QThread::idealThreadCount();
-    return cpuObj;
-}
-
-QJsonObject Telemetry::createCompilerJson() const {
-    QJsonObject compilerObj;
-
-#if defined(__clang__)
-    compilerObj["name"] = "Clang";
-    compilerObj["version"] = QString::number(__clang_major__) + "." +
-                             QString::number(__clang_minor__) + "." +
-                             QString::number(__clang_patchlevel__);
-#elif defined(__GNUC__)
-    compilerObj["name"] = "GCC";
-    compilerObj["version"] = QString::number(__GNUC__) + "." +
-                             QString::number(__GNUC_MINOR__) + "." +
-                             QString::number(__GNUC_PATCHLEVEL__);
-#elif defined(_MSC_VER)
-    compilerObj["name"] = "MSVC";
-    compilerObj["version"] = QString::number(_MSC_VER);
-#else
-    compilerObj["name"] = "Unknown";
-    compilerObj["version"] = "Unknown";
-#endif
-
-    return compilerObj;
-}
-
-int Telemetry::getButtonPressCount() const {
-    return buttonPressCount;
-}
-
-int Telemetry::getAddMenuCount() const {
-    return addMenuCount;
-}
+*/
