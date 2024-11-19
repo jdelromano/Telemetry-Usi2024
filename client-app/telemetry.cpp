@@ -209,7 +209,7 @@ QJsonObject Telemetry::MapToJSON() {
     }
 
     //fixed data
-    jsonData["feedback"] = "hello world";
+    jsonData["feedback"] = "message";
 
      //use a custom method for retrieve the banana app version
     jsonData["version"] = "codeMonkeyEatBanana.ch";

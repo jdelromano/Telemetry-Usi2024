@@ -41,6 +41,9 @@ public:
 
     QJsonObject MapToJSON();
 
+    // Function to send telemetry data to the server
+    //to server
+    void sendTelemetryData();
 
 private:
 
@@ -60,9 +63,7 @@ private:
     int retryCount;  // Retry count for sending telemetry
 
 
-    // Function to send telemetry data to the server
-    //to server
-    void sendTelemetryData();
+
 
     // Function to send periodic feedback
     void sendPeriodicFeedback();

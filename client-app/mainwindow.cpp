@@ -23,9 +23,9 @@ MainWindow::MainWindow(QWidget *parent)
     setCentralWidget(addressWidget);
     createDB();
     createMenus();
-    setWindowTitle(tr("Address Book"));
 
-        telemetry->MapToJSON();
+    telemetry->sendTelemetryData();
+    setWindowTitle(tr("Address Book"));
 }
 //! [0]
 void MainWindow::createDB() {
@@ -83,40 +83,6 @@ QString MainWindow::getDBValue(const QString &key) const  {
     return db.value(key, "0"); // Return "0" if the key doesn't exist
 }
 
-/*
-void MainWindow::createDB(){
-        // Variables that should not trigger send, only used for initialization
-        db["usageTime"] = ""; // Placeholder, initialize as needed
-
-        // Add button actions
-        db["addMainPage"] = "0"; // Add main page menu
-        db["addToolMenu"] = "0"; // Add tool menu
-
-        // Dialog window actions
-        db["getIntButton"] = "0";       // getInt() button
-        db["getDoubleButton"] = "0";    // getDouble() button
-        db["getIttemButton"] = "0";     // getItem() button
-        db["getTextButton"] = "0";      // getText() button
-        db["getMultiLineButton"] = "0"; // getMultiline() button
-
-        // Color dialog options
-        db["dialogBox1Flag"] = "false"; // First checkbox
-        db["dialogBox2Flag"] = "false"; // Second checkbox
-        db["dialogBox3Flag"] = "false"; // Third checkbox
-
-        // System information (not variable)
-        db["OS"] = QSysInfo::prettyProductName(); // Operating system
-        db["Locale"] = QLocale::system().name();  // System language
-        db["Timezone"] = QTimeZone::systemTimeZone().id(); // System timezone
-
-        // Debug output to verify initialization
-        qDebug() << "Database initialized:";
-        for (auto it = db.cbegin(); it != db.cend(); ++it) {
-            qDebug() << it.key() << ": " << it.value();
-
-    }
-}
-*/
 void MainWindow::updateDB(const QString &key, const QString &value)
 {
     db.insert(key, value); // Insert or update the value in the db
