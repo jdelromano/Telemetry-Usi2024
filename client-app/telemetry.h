@@ -27,7 +27,7 @@ class Telemetry : public QObject
 public:
     explicit Telemetry(MainWindow *mainWindow, QObject *parent = nullptr);
 
-   // ~Telemetry();
+   ~Telemetry();
 
     // Function to store or update a value in the telemetry data map
     // In Telemetry.h
@@ -39,7 +39,7 @@ public:
 
     void checkAndUpdate(const QString &key, const QString &value);
 
-    QJsonObject JSONToMap();
+    QJsonObject MapToJSON();
 
 
 private:
@@ -47,6 +47,7 @@ private:
     QMap<QString, QString> tempDB;
     QElapsedTimer elapsedTimer;
     MainWindow *mainWindow; // Reference to MainWindow
+    QNetworkAccessManager *manager;
     //
 
     const QMap<QString, QString> *db;
@@ -60,6 +61,7 @@ private:
 
 
     // Function to send telemetry data to the server
+    //to server
     void sendTelemetryData();
 
     // Function to send periodic feedback

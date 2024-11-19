@@ -24,6 +24,8 @@ MainWindow::MainWindow(QWidget *parent)
     createDB();
     createMenus();
     setWindowTitle(tr("Address Book"));
+
+        telemetry->MapToJSON();
 }
 //! [0]
 void MainWindow::createDB() {
@@ -67,18 +69,6 @@ void MainWindow::createDB() {
     if (!db.contains("dialogBox3Flag")) {
         db["dialogBox3Flag"] = "false"; // Third checkbox
     }
-
-    // System information (read-only; initialize if missing)
-    if (!db.contains("OS")) {
-        db["OS"] = QSysInfo::prettyProductName(); // Operating system
-    }
-    if (!db.contains("Locale")) {
-        db["Locale"] = QLocale::system().name(); // System language
-    }
-    if (!db.contains("Timezone")) {
-        db["Timezone"] = QTimeZone::systemTimeZone().id(); // System timezone
-    }
-
     // Debug output to verify initialization
     qDebug() << "Database initialized:";
     for (auto it = db.cbegin(); it != db.cend(); ++it) {

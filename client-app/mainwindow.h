@@ -38,6 +38,7 @@ private:
     int addCounter;
 
     void createDB();
+    void initializeSystemInfo();
 
     QAction *openDialogAct;  // Action to open the dialog
 
