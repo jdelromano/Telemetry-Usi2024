@@ -42,12 +42,6 @@ private slots:
     void questionMessage();
     void warningMessage();
     void errorMessage();
-    /*
-    DialogOptionsWidget *fileDialogOptionsWidget;
-    DialogOptionsWidget *colorDialogOptionsWidget;
-    DialogOptionsWidget *fontDialogOptionsWidget;
-*/
-    //QJsonObject getCheckboxStates() const ;
 
 private:
     QLabel *integerLabel;

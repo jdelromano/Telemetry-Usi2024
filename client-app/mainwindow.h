@@ -21,7 +21,7 @@ public:
     MainWindow(QWidget *parent = nullptr);
     //QMap<QString, QString> db;
 
-    void updateDB(const QString &key, const QString &value);
+    void setDB(const QString &key, const QString &value);
         QString getDBValue(const QString &key) const;
 
 
@@ -32,7 +32,8 @@ private slots:
     void openDialog();  // Slot for opening the new dialog
 
 private:
-    //QMap<QString, QJsonValue> db;
+
+    //tDB to store a copy of the most update data send during this session
     QMap<QString, QString> db;
     Telemetry *telemetry;
     int addCounter;

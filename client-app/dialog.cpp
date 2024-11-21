@@ -10,6 +10,8 @@
 #include <qfiledialog.h>
 #include <qfontdialog.h>
 #include <qgroupbox.h>
+#include <qjsondocument.h>
+#include <qjsonobject.h>
 #include <qlabel.h>
 #include <qmessagebox.h>
 #include <qpushbutton.h>
@@ -28,19 +30,14 @@ public:
     void addCheckBox(const QString &text, int value);
     void addSpacer();
     int value() const;
-    int getCheckedCount() const; // New function to retrieve the count
-    void updateTelemetry();
-
-
-
-private slots:
-    void updateCounter(bool checked); // Slot to handle checkbox toggling
+    int getCheckedCount() const; //getter
+    void updateTelemetry(); //setter
 
 private:
     typedef QPair<QCheckBox *, int> CheckBoxEntry;
     QVBoxLayout *layout;
     QList<CheckBoxEntry> checkBoxEntries;
-    int checkedCount; // Counter for checked checkboxes
+    int checkedCount;
     Telemetry* telemetry;
 };
 
@@ -50,15 +47,6 @@ DialogOptionsWidget::DialogOptionsWidget(Telemetry *telemetryInstance, QWidget *
     setTitle(Dialog::tr("Options"));
     setLayout(layout);
 }
-/*
-QJsonObject DialogOptionsWidget::getCheckedStates()  {
-    QJsonObject states;
-    foreach (QCheckBox *checkBox, checkBoxes) {
-        states[checkBox->text()] = checkBox->isChecked();
-    }
-    return states;
-}
-*/
 
 void DialogOptionsWidget::addSpacer()
 {
@@ -80,37 +68,15 @@ int DialogOptionsWidget::getCheckedCount() const
     return checkedCount;
 }
 
-void DialogOptionsWidget::updateCounter(bool checked)
-{
-    // Increment or decrement the counter based on the checkbox state
-    if (checked) {
-        ++checkedCount;
-    } else {
-        --checkedCount;
-    }
-    if (telemetry) {
-            qDebug() << checked;
-        //telemetry->incCount("1"); // Example call
-        // Or, if you want to send more meaningful data:
-        // telemetry->checkAndUpdate(box, checkedStr);
-    } else {
-        qWarning() << "Telemetry pointer is null, unable to update count.";
-    }
-}
-
 void DialogOptionsWidget::addCheckBox(const QString &text, int value)
 {
     QCheckBox *checkBox = new QCheckBox(text);
     layout->addWidget(checkBox);
     checkBoxEntries.append(CheckBoxEntry(checkBox, value));
 
-    connect(checkBox, &QCheckBox::toggled, this, [this](bool checked) {
-        this->updateCounter(checked);
-    });
-
     if (telemetry) {
         connect(checkBox, &QCheckBox::toggled, this, [this, text](bool checked) {
-            telemetry->switchFlag(text); // Only call if telemetry is valid
+           telemetry->checkAndUpdate(text, checked ? "true" : "false"); //bool to string
         });
     } else {
         qWarning() << "Telemetry instance is null!";
@@ -321,23 +287,7 @@ Dialog::Dialog(Telemetry* telemetryInstance, QWidget *parent)
 
     setWindowTitle(QGuiApplication::applicationDisplayName());
 }
-/*
-QJsonObject Dialog::getCheckboxStates() const {
-    QJsonObject states;
 
-    if (colorDialogOptionsWidget) {
-        states["colorDialog"] = colorDialogOptionsWidget->getCheckedStates();
-    }
-    if (fileDialogOptionsWidget) {
-        states["fileDialog"] = fileDialogOptionsWidget->getCheckedStates();
-    }
-    if (fontDialogOptionsWidget) {
-        states["fontDialog"] = fontDialogOptionsWidget->getCheckedStates();
-    }
-
-    return states;
-}
-*/
 void Dialog::setInteger()
 {
     telemetry->incCount("getIntButton");
@@ -348,7 +298,7 @@ void Dialog::setInteger()
                                  tr("Percentage:"), 25, 0, 100, 1, &ok);
     if (ok){
         integerLabel->setText(tr("%1%").arg(i));
-        telemetry->checkAndUpdateString("getIntField", tr("%1%").arg(i));
+        telemetry->checkAndUpdate("getIntField", tr("%1%").arg(i));
     }
     //! [0]
 }
@@ -364,7 +314,7 @@ void Dialog::setDouble()
                                        Qt::WindowFlags(), 1);
     if (ok){
         doubleLabel->setText(QString("$%1").arg(d));
-        telemetry->checkAndUpdateString("getDoubleField", QString("$%1").arg(d));
+        telemetry->checkAndUpdate("getDoubleField", QString("$%1").arg(d));
     }
     //! [1]
 }
@@ -382,7 +332,7 @@ void Dialog::setItem()
                                          tr("Season:"), items, 0, false, &ok);
     if (ok && !item.isEmpty()){
         itemLabel->setText(item);
-        telemetry->checkAndUpdateString("getItemField", tr("QInputDialog::getItem()"));
+        telemetry->checkAndUpdate("getItemField", tr("QInputDialog::getItem()"));
     }
     //! [2]
 }
@@ -398,7 +348,7 @@ void Dialog::setText()
                                          QDir::home().dirName(), &ok);
     if (ok && !text.isEmpty()){
         textLabel->setText(text);
-        telemetry->checkAndUpdateString("getTextField", text);
+        telemetry->checkAndUpdate("getTextField", text);
     }
     //! [3]
 }
@@ -413,7 +363,7 @@ void Dialog::setMultiLineText()
                                                   tr("Address:"), "John Doe\nFreedom Street", &ok);
     if (ok && !text.isEmpty()){
         multiLineTextLabel->setText(text);
-        telemetry->checkAndUpdateString("getMultiLineField", text);
+        telemetry->checkAndUpdate("getMultiLineField", text);
     }
     //! [4]
 }
@@ -439,7 +389,7 @@ void Dialog::setColor()
         colorInfo["alpha"] = color.alpha();       // Alpha (transparency)
 
         // Update telemetry database with structured data
-        telemetry->checkAndUpdateString("setColorField", QJsonDocument(colorInfo).toJson(QJsonDocument::Compact));
+        telemetry->checkAndUpdate("setColorField", QJsonDocument(colorInfo).toJson(QJsonDocument::Compact));
     }
 }
 
@@ -471,7 +421,7 @@ void Dialog::setFont()
         fontInfo["strikeOut"] = font.strikeOut();
 
         // Update telemetry database with structured data
-        telemetry->checkAndUpdateString("setFontField", QJsonDocument(fontInfo).toJson(QJsonDocument::Compact));
+        telemetry->checkAndUpdate("setFontField", QJsonDocument(fontInfo).toJson(QJsonDocument::Compact));
     }
 }
 

@@ -28,18 +28,23 @@ MainWindow::MainWindow(QWidget *parent)
     setWindowTitle(tr("Address Book"));
 }
 //! [0]
+
+//DB construction
+//Used to keep track of the data send to the server during this session
+// avoid waste of resources
 void MainWindow::createDB() {
-    // Check and initialize each key only if it's not present
+
+    // Check and initialize basic values
     if (!db.contains("usageTime")) {
         db["usageTime"] = ""; // Placeholder, initialize as needed
     }
 
     // Add button actions
     if (!db.contains("addMainPage")) {
-        db["addMainPage"] = "0"; // Add main page menu
+        db["addMainPage"] = "0"; // "Add" button counter main page menu
     }
     if (!db.contains("addToolMenu")) {
-        db["addToolMenu"] = "0"; // Add tool menu
+        db["addToolMenu"] = "0"; // "Add" button counter in tool menu
     }
 
     // Dialog window actions
@@ -75,18 +80,22 @@ void MainWindow::createDB() {
         qDebug() << it.key() << ": " << it.value();
     }
 }
+
+//getters
+//get the whole db
 const QMap<QString, QString>& MainWindow::getdb() const {
     return db;
 }
 
+//get the value of a given entry. Assumed no null in the db == 0
 QString MainWindow::getDBValue(const QString &key) const  {
     return db.value(key, "0"); // Return "0" if the key doesn't exist
 }
 
-void MainWindow::updateDB(const QString &key, const QString &value)
+//setter
+void MainWindow::setDB(const QString &key, const QString &value)
 {
     db.insert(key, value); // Insert or update the value in the db
-    qDebug() << "Updated db with key:" << key << "value:" << value;
 }
 //! [1a]
 void MainWindow::createMenus()
