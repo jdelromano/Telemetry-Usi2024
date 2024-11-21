@@ -12,3 +12,9 @@ ogni survey ha un uuid, un url, un nome, un prodotto e una target expression.
 Si possono ottenere i survey tramite l'endpoint `http://localhost:1984/analytics/surveys/banana`
 Si possono ottenere i prodotti tramite l'endpoint `http://localhost:1984/analytics/products`
 
+Se la versione è vecchia prenderemo:
+- Lingua
+- Regione
+- Tipo di licenza
+- Sistema operativo
+- Versione del sistema operativo
