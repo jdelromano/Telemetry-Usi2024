@@ -20,11 +20,40 @@ This will run the service in the background.
 
 ### Documentation
 
-This docker-compose is made of two parts: an Apache server and a mysql database.
+This docker-compose is made of three parts: an Apache server, a mysql database
+and a Grafana dashboard.
 
 The Apache server is a lightweight and basic image, to keep everything as slim
 and simple as possible. The database is mysql and not sqlite due to requirements
-given by Banana.ch
+given by Banana.ch Grafana is a powerful tool to visualize data, and it is used
+to display the data stored in the database.
+
+### First steps
+
+Everything will deploy automatically, you just have to login to grafana with the
+following credentials:
+
+- user: admin
+- password: admin
+
+Then you will be prompted to change the password. After that, you will be able
+to see the dashboard, edit it and create new ones.
+
+### Database
+
+The database will be empty at the beginning, but you can populate it with with
+dummy data provided in the `mock_data.sql` file. Before doing this, you have to
+access the server through UserFeedbackConsole and create a new product, then
+adding a new schema. Dummy data require the "CPU Information" template. To do
+so, you can run the following command:
+
+```bash
+source .env
+docker exec -i kuserfeedback-db mysql -u root -p${MYSQL_ROOT_PASSWORD} < mock_data.sql
+```
+
+This will populate the database with some dummy data, that you can use to test
+the dashboard.
 
 ### Errors
 

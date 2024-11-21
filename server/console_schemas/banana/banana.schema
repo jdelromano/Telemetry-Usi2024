@@ -1,0 +1,29 @@
+{
+    "aggregation": [
+    ],
+    "name": "banana",
+    "schema": [
+        {
+            "elements": [
+                {
+                    "name": "selectedColor",
+                    "type": "string"
+                },
+                {
+                    "name": "checkbox1",
+                    "type": "bool"
+                },
+                {
+                    "name": "checkbox2",
+                    "type": "bool"
+                },
+                {
+                    "name": "chackbox3",
+                    "type": "bool"
+                }
+            ],
+            "name": "colorPage",
+            "type": "scalar"
+        }
+    ]
+}

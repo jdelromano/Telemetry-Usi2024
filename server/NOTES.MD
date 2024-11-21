@@ -4,5 +4,11 @@ L'applicazione UserFeedbackConsole richiede un url, che sarà fornito dal docker
 
 Non si deve utilizzare Graphana ma Matomo, dal momento che il primo non offre tutte le funzionalità necessarie.
 
-Ad ogni release si devono rimuovere le info sulla release precedente, ma al contempop mantenere i dati riguardanti gli utilizzi.
+Ad ogni release si devono rimuovere le info sulla release precedente, ma al contempo mantenere i dati riguardanti gli utilizzi.
 Possiamo provare a utilizzare due survey diversi, con gli url che vengono shippati insieme alla release.
+
+### Cosa sono i surveys
+ogni survey ha un uuid, un url, un nome, un prodotto e una target expression.
+Si possono ottenere i survey tramite l'endpoint `http://localhost:1984/analytics/surveys/banana`
+Si possono ottenere i prodotti tramite l'endpoint `http://localhost:1984/analytics/products`
+
