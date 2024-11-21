@@ -23,6 +23,7 @@ class Dialog : public QDialog
 
 public:
     explicit Dialog(Telemetry* telemetry, QWidget *parent = nullptr);
+    Telemetry* telemetry;
 
 private slots:
     void setInteger();
@@ -41,6 +42,12 @@ private slots:
     void questionMessage();
     void warningMessage();
     void errorMessage();
+    /*
+    DialogOptionsWidget *fileDialogOptionsWidget;
+    DialogOptionsWidget *colorDialogOptionsWidget;
+    DialogOptionsWidget *fontDialogOptionsWidget;
+*/
+    //QJsonObject getCheckboxStates() const ;
 
 private:
     QLabel *integerLabel;
@@ -63,7 +70,6 @@ private:
     DialogOptionsWidget *colorDialogOptionsWidget;
     DialogOptionsWidget *fontDialogOptionsWidget;
     QString openFilesPath;
-    Telemetry* telemetry; // Add the missing semicolon here
     void trackButtonPress();
 
 signals:

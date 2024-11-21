@@ -45,6 +45,7 @@
 #include <QLocale>
 #include <QThread>
 #include <QTimeZone>
+#include <qcheckbox.h>
 #include <qjsonarray.h>
 
 // Constructor for Telemetry, initializing counters and setting up provider
@@ -123,6 +124,31 @@ void Telemetry::checkAndUpdate(const QString &key, const QString &value) {
 }
 
 
+void Telemetry::checkAndUpdateString(const QString &key, const QString &value) {
+    tempDB[key] = value;  // Simply insert or update the value in the map
+    qDebug() << "Set tempDB. Key:" << key << ", Value (Structured):" << value;
+}
+
+void Telemetry::switchFlag(const QString field) {
+
+    // Get a reference to the main database
+    const QMap<QString, QString> &db = mainWindow->getdb();
+
+    qDebug() << "Processing field:" << field;
+
+    // Use the field name as the key
+    QString key = field;
+
+    // Check if the key exists in tempDB
+    if (!tempDB.contains(key)) {
+        // If it doesn't exist, initialize it with a value from db or a default value
+        tempDB[key] = db.contains(key) ? db.value(key) : "0";
+    }
+
+    // Debugging output to confirm the result
+    qDebug() << "Updated tempDB for key:" << key << "Value:" << tempDB[key];
+}
+
 void Telemetry::incCount(const QString field){
     // Get from  tempDB ("0" if not found)
     int value = tempDB.value(field, "0").toInt();
@@ -135,6 +161,29 @@ void Telemetry::incCount(const QString field){
     checkAndUpdate(field, QString::number(value));
 }
 
+/*
+void Telemetry::checkAndUpdateBoolean(const QString &key, const QString &value) {
+    const QMap<QString, QString> &db = mainWindow->getdb();
+
+    if (!tempDB.contains(key)) {
+        tempDB[key] = db.contains(key) ? db.value(key) : "false";  // Default to "false"
+    }
+
+    QString currentValue = tempDB[key];
+    QString newValue = value.toLower();
+
+    // Only update if the current value is different from the new value
+    if (currentValue == newValue) {
+        qDebug() << "No update needed for key:" << key << "Current value:" << currentValue << "New value:" << newValue;
+        return;
+    }
+
+    // Update tempDB with the new boolean value
+    tempDB[key] = newValue;
+    qDebug() << "Updated tempDB (boolean). Key:" << key << ", Value:" << newValue;
+}
+*/
+
 //to server
 void Telemetry::sendTelemetryData()
 {
@@ -146,13 +195,21 @@ void Telemetry::sendTelemetryData()
     QNetworkRequest request((QUrl(networkUrl)));
     request.setHeader(QNetworkRequest::ContentTypeHeader, contentType);
 
+    // Add checkbox states to telemetry
+    QJsonObject jsonData = MapToJSON();
+    /*
+    if (dialog) {
+        QJsonObject checkboxStates = dialog->getCheckboxStates();
+        jsonData["checkboxStates"] = checkboxStates;
+    }
+*/
     // Convert map to JSON
     if (tempDB.isEmpty()) {
         qDebug() << "No telemetry data to send.";
         delete manager;
         return; // Nothing to send
     }
-    QJsonObject jsonData = MapToJSON();
+    //QJsonObject jsonData = MapToJSON();
     // Convert QJsonObject to JSON string for POST request
     QJsonDocument jsonDoc(jsonData);
     QByteArray jsonDataBytes = jsonDoc.toJson();
@@ -212,7 +269,7 @@ QJsonObject Telemetry::MapToJSON() {
     jsonData["feedback"] = "message";
 
      //use a custom method for retrieve the banana app version
-    jsonData["version"] = "codeMonkeyEatBanana.ch";
+    jsonData["version"] = "Banana.ch";
     jsonData["versionNumber"]= "5";
 
     KUserFeedback::ApplicationVersionSource versionSource;
@@ -258,19 +315,6 @@ QJsonObject Telemetry::MapToJSON() {
             // Update mainDB
             mainWindow->updateDB(it.key(), QString::number(newValue));
         }
-        else if (currentValue == "true" || currentValue == "false") {
-            // Handle boolean strings
-            bool boolValue = (currentValue == "true");
-
-            // JSON entry as "boolean"
-            QJsonObject boolObject;
-            boolObject["boolean"] = boolValue;
-            jsonData.insert(it.key(), boolObject);
-
-            // Add to the custom data array
-            customEntry["type"] = "boolean";
-            customEntry["value"] = boolValue;
-        }
         else {
             // JSON entry as "text"
             QJsonObject textObject;
@@ -288,6 +332,23 @@ QJsonObject Telemetry::MapToJSON() {
         // Remove the entry from tempDB
         it = tempDB.erase(it);
     }
+    // Loop through all checked checkboxes from the DialogOptionsWidget
+/*
+else{
+        for (const CheckBoxEntry &checkboxEntry : std::as_const(checkBoxEntries)) {
+            QCheckBox* checkBox = checkboxEntry.first;
+
+
+        // Prepare JSON for each checkbox
+        QJsonObject checkboxEntry;
+        checkboxEntry["key"] = checkBox->text();  // Use checkbox label as key
+        checkboxEntry["value"] = checkBox->isChecked() ? "true" : "false";  // Use the checked state as the value
+
+        // Map to custom data array
+        customDataArray.append(checkboxEntry);
+    }
+*/
+
 
     // Add custom data to the main JSON object
     jsonData["custom_data"] = customDataArray;
@@ -297,7 +358,6 @@ QJsonObject Telemetry::MapToJSON() {
 
     return jsonData;
 }
-
 
 void Telemetry::retrySendingData(QNetworkReply *reply)
 {
