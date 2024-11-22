@@ -7,7 +7,7 @@
 #include <QMainWindow>
 #include <QLabel>
 #include <QMap>
-#include <QString>
+#include <QVariant>
 #include <qitemselectionmodel.h>
 #include <QItemSelectionModel>
 
@@ -25,8 +25,8 @@ public:
 
     // Getters and Setters for the database
     void setDB(const QString &key, const QString &value); // Updated to use const
-    QString getDBValue(const QString &key) const;         // Updated to const
-    QMap<QString, QString>& getdb();                     // Return non-const reference
+    QVariant getDBValue(const QString &key) const;         // Updated to const
+    QMap<QString, QVariant>& getdb();                     // Return non-const reference
 
 private slots:
     void updateActions(const QItemSelection &selection);
@@ -37,8 +37,6 @@ private slots:
 
 private:
 
-    //tDB to store a copy of the most update data send during this session
-    //QMap<QString, QString> db;
     Telemetry *telemetry;
     int addCounter;
     AddressWidget *addressWidget;

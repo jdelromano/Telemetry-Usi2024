@@ -6,7 +6,6 @@
 
 #include <QWidget>
 #include <qdialog.h>
-#include "telemetry.h"
 
 QT_BEGIN_NAMESPACE
 class QCheckBox;

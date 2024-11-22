@@ -88,12 +88,12 @@ void MainWindow::createDB() {
 
 //getters
 //get the whole MyQApp::db
- QMap<QString, QString>& MainWindow::getdb()  {
+ QMap<QString, QVariant>& MainWindow::getdb()  {
     return MyQApp::db;
 }
 
 //get the value of a given entry. Assumed no null in the MyQApp::db == 0
-QString MainWindow::getDBValue(const QString &key) const {
+QVariant MainWindow::getDBValue(const QString &key) const {
     return MyQApp::db.value(key, "0"); // Return "0" if the key doesn't exist
 }
 

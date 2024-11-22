@@ -30,11 +30,8 @@ public:
 
     void checkAndUpdate( QString &key,  QString &value);
     void checkAndUpdate(const QString &key,const  QString &value);
-
-    //map used to store temporarly data to be converted in JSON and send
-    //data should not be the same as the one in the server
-    //emptied after send,
-    //QMap< QString,  QString> toSendDB;
+    void checkAndUpdateBool(const QString &key, bool value);
+    void checkAndUpdateInt(const QString &key, int value);
 
     // send telemetry data to the server
     void sendTelemetryData();
@@ -47,7 +44,7 @@ public:
     MainWindow *mainWindow; // Reference to MainWindow
     QNetworkAccessManager *manager;
 
-     QMap<QString, QString> *db;
+     QMap<QString, QVariant> *db;
 
     KUserFeedback::Provider *provider;  // Feedback provider
     QTimer feedbackTimer;  // Timer for periodic feedback

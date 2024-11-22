@@ -2,8 +2,6 @@
 #include "mainwindow.h"
 #include "myQApp.h"
 
-
-
 /*
  * QSettings
  * stores data across application sessions.
@@ -27,7 +25,6 @@ Telemetry::Telemetry(QObject *parent)
     : QObject(parent),
     provider(new KUserFeedback::Provider(this)),
     retryCount(0)//,
-    //toSendDB(QMap<QString, QString>()) // Proper initialization of toSendDB
 {
     // Basic settings
     int delay = 10; // Seconds delay
@@ -71,88 +68,34 @@ Telemetry::~Telemetry()
     QSettings settings;
     settings.setValue("total_usage_time", totalTimeElapsed);
 }
-/*
-void Telemetry::checkAndUpdate(const QString &key, const QString &value) {
-    QMap<QString, QString> &db = mainWindow->getdb();
-
-    // Synchronize: Check if the key needs to be staged
-    // If it is staged
-    if (toSendDB.contains(key)) {
-        // Only update if toSendDB is different from both db and the new value
-        if (toSendDB[key] != db.value(key) && toSendDB[key] != value) {
-            toSendDB[key] = value;
-        }
-    } else {
-        // If not staged, check if the value differs from db
-        if (!db.contains(key) || db.value(key) != value) {
-            //toSendDB[key] = value; // it is a new value
-        }
-    }
-}*/
-
 
 //Setters
 // Check and update toSendDB
 //if the value is already in the database, dosen't update the array to be send
-/*void Telemetry::checkAndUpdate( QString &key,  QString &value) {
-     QMap<QString, QString> &db = mainWindow->getdb();
+/*
+ * void Telemetry::checkAndUpdate( QString &key,  QString &value) {
+     QMap<QString, QVariant> &db = mainWindow->getdb();
 
     // Synchronize: Check if the key needs to be staged
     // if it is staged
-    if (toSendDB.contains(key)) {
+    if (MyQApp::toSendDB.contains(key)) {
         // Only update if toSendDB is different from both db and the new value
-        if (toSendDB[key] != db.value(key) && toSendDB[key] != value) {
-            toSendDB[key] = value;
+        if (MyQApp::toSendDB[key] != db.value(key) && MyQApp::toSendDB[key] != value) {
+            MyQApp::toSendDB[key] = value;
         }
     } else {
         // If not staged, check if the value differs from db
         if (!db.contains(key) || db.value(key) != value) {
-            toSendDB[key] = value; // it is a new value
+            MyQApp::toSendDB[key] = value; // it is a new value
         }
     }
 }
 */
-QMutex mutex;
-
-//void Telemetry::incCount( QString field) {
-    void Telemetry::incCount(QString field) {
-        QMutexLocker locker(&mutex); // Automatically handles locking and unlocking
-
-        // Retrieve the current value or default to "0"
-        int value = MyQApp::toSendDB.value(field, "0").toInt();
-
-        // Increment the value
-        value++;
-
-        // Update the map with the new value
-        MyQApp::toSendDB[field] = QString::number(value);
-
-        // Locker releases the mutex automatically when it goes out of scope
-  //  }
-    //if (!toSendDB.contains(field)) {
-      //  toSendDB[field] = "0";
-    //}
-    //if (!toSendDB.isEmpty() && toSendDB.contains(field)) {
-        // Proceed with operations
-   // } else {
-     //   qDebug() << "toSendDB is either empty or uninitialized";
-    //}
-    //mutex.lock();
-    //int value = toSendDB.value(field, "0").toInt();
-    //value++;
-    //MyQApp::toSendDB[field] = "1";//QString::number(value);
-    //mutex.unlock();
-
-    //toSendDB[field] = QString::number(value);
-
-    // Call checkAndUpdate (ensure no recursive issues occur here)
-    //checkAndUpdate(field, QString::number(value));
-}
 
 void Telemetry::checkAndUpdate(const QString &key, const QString &value) {
     // Access db through MyQApp singleton
-    QMap<QString, QString>& db = MyQApp::getDb();  // Get db through singleton
-    QMap<QString, QString>& toSendDB = MyQApp::getToSendDB();  // Get toSendDB through singleton
+    QMap<QString, QVariant>& db = MyQApp::getDb();  // Get db through singleton
+    QMap<QString, QVariant>& toSendDB = MyQApp::getToSendDB();  // Get toSendDB through singleton
 
     // Synchronize: Check if the key needs to be staged
     if (toSendDB.contains(key)) {
@@ -166,6 +109,62 @@ void Telemetry::checkAndUpdate(const QString &key, const QString &value) {
             toSendDB[key] = value;  // It is a new value
         }
     }
+}
+// Change db and toSendDB to hold QVariant to support different types
+void Telemetry::checkAndUpdateInt(const QString &key, int value) {
+    // Access db and toSendDB through MyQApp singleton
+    QMap<QString, QVariant>& db = MyQApp::getDb();  // Get db through singleton
+    QMap<QString, QVariant>& toSendDB = MyQApp::getToSendDB();  // Get toSendDB through singleton
+
+    // Synchronize: Check if the key needs to be staged
+    if (toSendDB.contains(key)) {
+        // Only update if toSendDB is different from both db and the new value
+        if (toSendDB[key].toInt() != db.value(key).toInt() && toSendDB[key].toInt() != value) {
+            qDebug() << "Updating int value for key" << key << "from"
+                     << toSendDB[key].toInt() << "to" << value;
+            toSendDB[key] = value;  // Update value in toSendDB
+        }
+    } else {
+        // If not staged, check if the value differs from db
+        if (!db.contains(key) || db.value(key).toInt() != value) {
+            qDebug() << "New int key-value pair added: " << key << "->" << value;
+            toSendDB[key] = value;  // It is a new value
+        }
+    }
+}
+
+void Telemetry::checkAndUpdateBool(const QString &key, bool value) {
+    // Access db and toSendDB through MyQApp singleton
+    QMap<QString, QVariant>& db = MyQApp::getDb();  // Get db through singleton
+    QMap<QString, QVariant>& toSendDB = MyQApp::getToSendDB();  // Get toSendDB through singleton
+
+    // Synchronize: Check if the key needs to be staged
+    if (toSendDB.contains(key)) {
+        // Only update if toSendDB is different from both db and the new value
+        if (toSendDB[key].toBool() != db.value(key).toBool() && toSendDB[key].toBool() != value) {
+            qDebug() << "Updating bool value for key" << key << "from"
+                     << toSendDB[key].toBool() << "to" << value;
+            toSendDB[key] = value;  // Update value in toSendDB
+        }
+    } else {
+        // If not staged, check if the value differs from db
+        if (!db.contains(key) || db.value(key).toBool() != value) {
+            qDebug() << "New bool key-value pair added: " << key << "->" << value;
+            toSendDB[key] = value;  // It is a new value
+        }
+    }
+}
+//void Telemetry::incCount( QString field) {
+void Telemetry::incCount(QString field) {
+
+    // Retrieve the current value or default to "0"
+    int value = MyQApp::toSendDB.value(field, "0").toInt();
+
+    // Increment the value
+    value++;
+
+    // Update the map with the new value
+    MyQApp::toSendDB[field] = QString::number(value);
 }
 
 //to server
@@ -187,7 +186,7 @@ void Telemetry::sendTelemetryData()
         return; // Nothing to send
     }
 
-    //parse and clean map<QString, QString> to valid JSon
+    //parse and clean map<QString, QVariant> to valid JSon
     QJsonObject jsonData = MapToJSON();
 
     // Convert QJsonObject to JSON string for POST request
@@ -217,7 +216,7 @@ void Telemetry::sendTelemetryData()
     });
 }
 
-//map<QString, QString> to JSon parser + auxiliary
+//map<QString, QVariant> to JSon parser + auxiliary
 
 //fix fields
 //local time -> note, is the user defined setting
@@ -262,12 +261,12 @@ QJsonObject Telemetry::MapToJSON() {
     jsonData["applicationVersion"] = QJsonObject{{"value", versionSource.data().toString()}};
 
     //time
-    //QSettings settings;
-    //int elapsed = elapsedTimer.elapsed();
-    //jsonData["sessionTime"] =  QJsonObject{{"value", elapsed}};
+    QSettings settings;
+    int elapsed = elapsedTimer.elapsed();
+    jsonData["sessionTime"] =  QJsonObject{{"value", elapsed}};
     // Load old total time
-    //totalTimeElapsed = settings.value("total_usage_time", 0).toInt();
-    //jsonData["TotalUsageTime"] = QJsonObject{{"value",  totalTimeElapsed+elapsed}};  // Total time used (in seconds)
+    totalTimeElapsed = settings.value("total_usage_time", 0).toInt();
+    jsonData["TotalUsageTime"] = QJsonObject{{"value",  totalTimeElapsed+elapsed}};  // Total time used (in seconds)
 
     jsonData["timezone"] = createTimeZoneJson();
     jsonData["locale"] = createLocaleJson();
@@ -276,7 +275,7 @@ QJsonObject Telemetry::MapToJSON() {
     QJsonArray customDataArray;
 
     for (auto it = MyQApp::toSendDB.begin(); it != MyQApp::toSendDB.end(); ++it) {
-        QString currentValue = mainWindow->getDBValue(it.key());
+        QVariant currentValue = mainWindow->getDBValue(it.key());
 
         // Check if the value is numeric
         bool isNumber = false;
@@ -288,7 +287,6 @@ QJsonObject Telemetry::MapToJSON() {
         if (isNumber) {
             // Add numerical value to the counter
             int newValue = currentIntValue + it.value().toInt();
-            printf("aaaaaaaa  %d, %d, %d \n", newValue, currentIntValue,  it.value().toInt());
 
             // JSON entry as "counter"
             QJsonObject counterObject;
@@ -304,12 +302,12 @@ QJsonObject Telemetry::MapToJSON() {
         } else {
             // JSON entry as "text"
             QJsonObject textObject;
-            textObject["text"] = currentValue;
+            textObject["text"] = QJsonValue::fromVariant(currentValue);
             jsonData.insert(it.key(), textObject);
 
             // Add to the custom data array
             customEntry["type"] = "text";
-            customEntry["value"] = currentValue;
+            customEntry["value"] = QJsonValue::fromVariant(currentValue);
         }
 
         // Append to the custom data array

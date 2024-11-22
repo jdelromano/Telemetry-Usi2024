@@ -6,8 +6,6 @@
 
 #include <QtWidgets>
 
-//#include "telemetry.h"
-
 //! [0]
 NewAddressTab::NewAddressTab(
    // Telemetry* telemetry,

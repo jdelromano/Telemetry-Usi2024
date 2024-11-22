@@ -1,30 +1,3 @@
-/*#include "myQApp.h"
-
-// Define the static member
-Telemetry* MyQApp::m_telemetry = nullptr;
-MainWindow* MyQApp::m_mainWindow = nullptr;
-
-// Constructor definition
-MyQApp::MyQApp(int &argc, char **argv)
-    : QApplication(argc, argv)
-{
-    if (m_mainWindow) {
-        m_mainWindow = new MainWindow(nullptr);  // Initialize only once
-    }
-    if (!m_telemetry) {
-        m_telemetry = new Telemetry(this);  // Initialize only once
-    }
-}
-
-// Static method definition
-Telemetry* MyQApp::telemetry()
-{
-    return m_telemetry;
-}
-
-MainWindow* MyQApp::getMainWindow() {
-    return MainWindow;
-}*/
 #include "myQApp.h"
 #include "mainwindow.h"
 
@@ -32,8 +5,8 @@ MainWindow* MyQApp::getMainWindow() {
 MyQApp* MyQApp::instance = nullptr;
 Telemetry* MyQApp::m_telemetry = nullptr;
 MainWindow* MyQApp::m_mainWindow = nullptr;
-QMap<QString, QString> MyQApp::toSendDB;  // Static toSendDB map
-QMap<QString, QString> MyQApp::db;  // Static db map
+QMap<QString, QVariant> MyQApp::toSendDB;  // Static toSendDB map
+QMap<QString, QVariant> MyQApp::db;  // Static db map
 
 MyQApp::MyQApp(int &argc, char **argv)
     : QApplication(argc, argv)
@@ -60,11 +33,11 @@ MainWindow* MyQApp::mainWindow() {
     return m_mainWindow;
 }
 
-QMap<QString, QString>& MyQApp::getDb() {
+QMap<QString, QVariant>& MyQApp::getDb() {
     return db;  // Return the reference to db
 }
 
-QMap<QString, QString>& MyQApp::getToSendDB() {
+QMap<QString, QVariant>& MyQApp::getToSendDB() {
     return toSendDB;  // Return the reference to toSendDB
 }
 

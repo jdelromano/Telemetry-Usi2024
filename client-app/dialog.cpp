@@ -77,7 +77,7 @@ void DialogOptionsWidget::addCheckBox(const QString &text, int value)
 
     if (telemetry) {
         connect(checkBox, &QCheckBox::toggled, this, [this, text](bool checked) {
-           MyQApp::telemetry()->checkAndUpdate(text, (checked ? "true" : "false")); //bool to string //TODO
+           MyQApp::telemetry()->checkAndUpdateBool(text, checked); //bool to string //TODO
         });
     } else {
         qWarning() << "Telemetry instance is null!";
