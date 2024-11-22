@@ -63,7 +63,7 @@ int DialogOptionsWidget::value() const
     return result;
 }
 
-int DialogOptionsWidget::getCheckedCount() const
+int DialogOptionsWidget::getCheckedCount() 
 {
     return checkedCount;
 }
@@ -215,7 +215,7 @@ Dialog::Dialog(Telemetry* telemetryInstance, QWidget *parent)
     layout->addItem(new QSpacerItem(0, 0, QSizePolicy::Ignored, QSizePolicy::MinimumExpanding), 5, 0);
     toolbox->addItem(page, tr("Input Dialogs"));
 
-    const QString doNotUseNativeDialog = tr("Do not use native dialog");
+     QString doNotUseNativeDialog = tr("Do not use native dialog");
 
     page = new QWidget;
     layout = new QGridLayout(page);
@@ -372,8 +372,8 @@ void Dialog::setColor()
 {
     telemetry->incCount("setColorButton");
 
-    const QColorDialog::ColorDialogOptions options = QFlag(colorDialogOptionsWidget->value());
-    const QColor color = QColorDialog::getColor(Qt::green, this, "Select Color", options);
+     QColorDialog::ColorDialogOptions options = QFlag(colorDialogOptionsWidget->value());
+     QColor color = QColorDialog::getColor(Qt::green, this, "Select Color", options);
 
     if (color.isValid()) {
         colorLabel->setText(color.name());
@@ -399,7 +399,7 @@ void Dialog::setFont()
     telemetry->incCount("setFontButton");
     const QFontDialog::FontDialogOptions options = QFlag(fontDialogOptionsWidget->value());
 
-    const QString &description = fontLabel->text();
+     QString &description = fontLabel->text();
     QFont defaultFont;
     if (!description.isEmpty())
         defaultFont.fromString(description);
