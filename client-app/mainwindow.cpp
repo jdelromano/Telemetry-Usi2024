@@ -40,67 +40,67 @@ MainWindow::MainWindow(QWidget *parent)
 void MainWindow::createDB() {
 
     // Check and initialize basic values
-    if (!db.contains("usageTime")) {
-        db["usageTime"] = ""; // Placeholder, initialize as needed
+    if (!MyQApp::db.contains("usageTime")) {
+        MyQApp::db["usageTime"] = ""; // Placeholder, initialize as needed
     }
 
     // Add button actions
-    if (!db.contains("addMainPage")) {
-        db["addMainPage"] = "0"; // "Add" button counter main page menu
+    if (!MyQApp::db.contains("addMainPage")) {
+        MyQApp::db["addMainPage"] = "0"; // "Add" button counter main page menu
     }
-    if (!db.contains("addToolMenu")) {
-        db["addToolMenu"] = "0"; // "Add" button counter in tool menu
+    if (!MyQApp::db.contains("addToolMenu")) {
+        MyQApp::db["addToolMenu"] = "0"; // "Add" button counter in tool menu
     }
 
     // Dialog window actions
-    if (!db.contains("getIntButton")) {
-        db["getIntButton"] = "0"; // getInt() button
+    if (!MyQApp::db.contains("getIntButton")) {
+        MyQApp::db["getIntButton"] = "0"; // getInt() button
     }
-    if (!db.contains("getDoubleButton")) {
-        db["getDoubleButton"] = "0"; // getDouble() button
+    if (!MyQApp::db.contains("getDoubleButton")) {
+        MyQApp::db["getDoubleButton"] = "0"; // getDouble() button
     }
-    if (!db.contains("getIttemButton")) {
-        db["getIttemButton"] = "0"; // getItem() button
+    if (!MyQApp::db.contains("getIttemButton")) {
+        MyQApp::db["getIttemButton"] = "0"; // getItem() button
     }
-    if (!db.contains("getTextButton")) {
-        db["getTextButton"] = "0"; // getText() button
+    if (!MyQApp::db.contains("getTextButton")) {
+        MyQApp::db["getTextButton"] = "0"; // getText() button
     }
-    if (!db.contains("getMultiLineButton")) {
-        db["getMultiLineButton"] = "0"; // getMultiline() button
+    if (!MyQApp::db.contains("getMultiLineButton")) {
+        MyQApp::db["getMultiLineButton"] = "0"; // getMultiline() button
     }
 
     // Color dialog options
-    if (!db.contains("dialogBox1Flag")) {
-        db["dialogBox1Flag"] = "false"; // First checkbox
+    if (!MyQApp::db.contains("dialogBox1Flag")) {
+        MyQApp::db["dialogBox1Flag"] = "false"; // First checkbox
     }
-    if (!db.contains("dialogBox2Flag")) {
-        db["dialogBox2Flag"] = "false"; // Second checkbox
+    if (!MyQApp::db.contains("dialogBox2Flag")) {
+        MyQApp::db["dialogBox2Flag"] = "false"; // Second checkbox
     }
-    if (!db.contains("dialogBox3Flag")) {
-        db["dialogBox3Flag"] = "false"; // Third checkbox
+    if (!MyQApp::db.contains("dialogBox3Flag")) {
+        MyQApp::db["dialogBox3Flag"] = "false"; // Third checkbox
     }
     // Debug output to verify initialization
     qDebug() << "Database initialized:";
-    for (auto it = db.cbegin(); it != db.cend(); ++it) {
+    for (auto it = MyQApp::db.cbegin(); it != MyQApp::db.cend(); ++it) {
         qDebug() << it.key() << ": " << it.value();
     }
 }
 
 //getters
-//get the whole db
+//get the whole MyQApp::db
  QMap<QString, QString>& MainWindow::getdb()  {
-    return db;
+    return MyQApp::db;
 }
 
-//get the value of a given entry. Assumed no null in the db == 0
+//get the value of a given entry. Assumed no null in the MyQApp::db == 0
 QString MainWindow::getDBValue(const QString &key) const {
-    return db.value(key, "0"); // Return "0" if the key doesn't exist
+    return MyQApp::db.value(key, "0"); // Return "0" if the key doesn't exist
 }
 
 //setter
 void MainWindow::setDB(const QString &key, const QString &value)
 {
-    db.insert(key, value); // Insert or update the value in the db
+    MyQApp::db.insert(key, value); // Insert or update the value in the MyQApp::db
 }
 //! [1a]
 void MainWindow::createMenus()

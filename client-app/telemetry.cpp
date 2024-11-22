@@ -2,6 +2,8 @@
 #include "mainwindow.h"
 #include "myQApp.h"
 
+
+
 /*
  * QSettings
  * stores data across application sessions.
@@ -9,12 +11,11 @@
  *  settings (e.g., registry on Windows, .ini files on Linux/macOS).
 */
 
-#include "telemetry.h"
 #include "kuserfeedback/applicationversionsource.h"
 #include "kuserfeedback/compilerinfosource.h"
 #include "kuserfeedback/platforminfosource.h"
 #include "kuserfeedback/usagetimesource.h"
-#include "mainwindow.h"
+
 #include <qjsonarray.h>
 #include <qjsondocument.h>
 #include <qjsonobject.h>
@@ -113,7 +114,21 @@ void Telemetry::checkAndUpdate(const QString &key, const QString &value) {
 */
 QMutex mutex;
 
-void Telemetry::incCount( QString field) {
+//void Telemetry::incCount( QString field) {
+    void Telemetry::incCount(QString field) {
+        QMutexLocker locker(&mutex); // Automatically handles locking and unlocking
+
+        // Retrieve the current value or default to "0"
+        int value = MyQApp::toSendDB.value(field, "0").toInt();
+
+        // Increment the value
+        value++;
+
+        // Update the map with the new value
+        MyQApp::toSendDB[field] = QString::number(value);
+
+        // Locker releases the mutex automatically when it goes out of scope
+  //  }
     //if (!toSendDB.contains(field)) {
       //  toSendDB[field] = "0";
     //}
@@ -122,20 +137,17 @@ void Telemetry::incCount( QString field) {
    // } else {
      //   qDebug() << "toSendDB is either empty or uninitialized";
     //}
-    mutex.lock();
+    //mutex.lock();
     //int value = toSendDB.value(field, "0").toInt();
     //value++;
-    //toSendDB[field] = QString::number(value);
-    mutex.unlock();
+    //MyQApp::toSendDB[field] = "1";//QString::number(value);
+    //mutex.unlock();
 
     //toSendDB[field] = QString::number(value);
 
     // Call checkAndUpdate (ensure no recursive issues occur here)
     //checkAndUpdate(field, QString::number(value));
 }
-
-#include "telemetry.h"
-#include "myQApp.h"  // Include MyQApp to access the singleton
 
 void Telemetry::checkAndUpdate(const QString &key, const QString &value) {
     // Access db through MyQApp singleton
@@ -276,6 +288,7 @@ QJsonObject Telemetry::MapToJSON() {
         if (isNumber) {
             // Add numerical value to the counter
             int newValue = currentIntValue + it.value().toInt();
+            printf("aaaaaaaa  %d, %d, %d \n", newValue, currentIntValue,  it.value().toInt());
 
             // JSON entry as "counter"
             QJsonObject counterObject;
@@ -304,7 +317,7 @@ QJsonObject Telemetry::MapToJSON() {
     }
 
     // Clear the entire toSendDB after processing
-    //toSendDB.clear();
+    MyQApp::toSendDB.clear();
 
     // Add custom data to the main JSON object
     jsonData["custom_data"] = customDataArray;

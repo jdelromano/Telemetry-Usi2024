@@ -38,7 +38,7 @@ private slots:
 private:
 
     //tDB to store a copy of the most update data send during this session
-    QMap<QString, QString> db;
+    //QMap<QString, QString> db;
     Telemetry *telemetry;
     int addCounter;
     AddressWidget *addressWidget;
