@@ -20,15 +20,13 @@ class NewAddressTab : public QWidget
     Q_OBJECT
 
 public:
-    NewAddressTab(
-        Telemetry* telemetry,
-        QWidget *parent = nullptr);
+     explicit NewAddressTab(QWidget *parent = nullptr);
 
 public slots:
     void addEntry();
 
 signals:
-    void sendDetails(const QString &name, const QString &address);
+    void sendDetails(const QString &name,  const QString &address);
     void entryCountChanged(int count);
     void entryAdded();
     

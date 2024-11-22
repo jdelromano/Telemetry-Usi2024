@@ -16,7 +16,8 @@ class Telemetry : public QObject
     Q_OBJECT
 
 public:
-    explicit Telemetry(MainWindow *mainWindow, QObject *parent = nullptr);
+    // Constructor for Telemetry, initializing counters and setting up provider
+    explicit Telemetry(QObject *parent = nullptr);
 
    ~Telemetry();
 
@@ -27,12 +28,13 @@ public:
     int total_time;
     //int totalTimeElapsed;
 
-    void checkAndUpdate(const QString &key, const QString &value);
+    void checkAndUpdate( QString &key,  QString &value);
+    void checkAndUpdate(const QString &key,const  QString &value);
 
     //map used to store temporarly data to be converted in JSON and send
     //data should not be the same as the one in the server
     //emptied after send,
-    QMap<QString, QString> toSendDB;
+    //QMap< QString,  QString> toSendDB;
 
     // send telemetry data to the server
     void sendTelemetryData();
@@ -40,12 +42,12 @@ public:
     //convert data into json
     QJsonObject MapToJSON();
 
-private:
+//private:
     QElapsedTimer elapsedTimer;
     MainWindow *mainWindow; // Reference to MainWindow
     QNetworkAccessManager *manager;
 
-    const QMap<QString, QString> *db;
+     QMap<QString, QString> *db;
 
     KUserFeedback::Provider *provider;  // Feedback provider
     QTimer feedbackTimer;  // Timer for periodic feedback

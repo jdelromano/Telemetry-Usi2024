@@ -63,6 +63,7 @@ qt_add_executable(telemetryClientApp
     telemetry.cpp telemetry.h
     dialog.cpp
     dialog.h
+    myQApp.h myQApp.cpp
 )
 
 #############################################################################################

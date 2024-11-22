@@ -2,14 +2,21 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR BSD-3-Clause
 
 #include "mainwindow.h"
+#include "addresswidget.h"
+#include "myQApp.h"
+
+#include "mainwindow.h"
 #include "dialog.h"
 #include "telemetry.h"        // Include only here
-#include "addresswidget.h"    // Include the full definition here
+#include "myQApp.h"
+#include "addresswidget.h"
 
 #include <QAction>
 #include <QFileDialog>
 #include <QMenuBar>
 #include <qapplication.h>
+#include <qmenu.h>
+#include <qmenubar.h>
 #include <qscreen.h>
 #include <qstylehints.h>
 
@@ -17,14 +24,12 @@
 //! [0]
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent),
-      telemetry(new Telemetry(this, this)),
-    addressWidget(new AddressWidget(telemetry, this))
+    addressWidget(new AddressWidget(this))
 {
-    setCentralWidget(addressWidget);
+    setCentralWidget(addressWidget); // Use the properly initialized widget
     createDB();
     createMenus();
-
-    telemetry->sendTelemetryData();
+    MyQApp::telemetry()->sendTelemetryData(); // Use MyQApp to access telemetry
     setWindowTitle(tr("Address Book"));
 }
 //! [0]
@@ -83,12 +88,12 @@ void MainWindow::createDB() {
 
 //getters
 //get the whole db
-const QMap<QString, QString>& MainWindow::getdb() const {
+ QMap<QString, QString>& MainWindow::getdb()  {
     return db;
 }
 
 //get the value of a given entry. Assumed no null in the db == 0
-QString MainWindow::getDBValue(const QString &key) const  {
+QString MainWindow::getDBValue(const QString &key) const {
     return db.value(key, "0"); // Return "0" if the key doesn't exist
 }
 
@@ -176,8 +181,8 @@ void MainWindow::updateActions(const QItemSelection &selection)
 //! // Slot to open the dialog
 void MainWindow::openDialog()
 {
-    Telemetry* telemetry = this->telemetry;
-    QDialog *dialog = new Dialog(telemetry, this);
+    Dialog *dialog = new Dialog();
+
     dialog->setWindowTitle(tr("Standard Dialog"));
 
     if (!QGuiApplication::styleHints()->showIsFullScreen() && !QGuiApplication::styleHints()->showIsMaximized()) {

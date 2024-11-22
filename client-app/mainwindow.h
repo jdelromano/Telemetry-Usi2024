@@ -6,7 +6,10 @@
 
 #include <QMainWindow>
 #include <QLabel>
+#include <QMap>
+#include <QString>
 #include <qitemselectionmodel.h>
+#include <QItemSelectionModel>
 
 class Telemetry; // Forward declaration
 class AddressWidget;
@@ -18,12 +21,12 @@ class MainWindow : public QMainWindow
     Q_OBJECT
 
 public:
-    MainWindow(QWidget *parent = nullptr);
-    //QMap<QString, QString> db;
+    explicit MainWindow(QWidget *parent = nullptr);
 
-    void setDB(const QString &key, const QString &value);
-        QString getDBValue(const QString &key) const;
-
+    // Getters and Setters for the database
+    void setDB(const QString &key, const QString &value); // Updated to use const
+    QString getDBValue(const QString &key) const;         // Updated to const
+    QMap<QString, QString>& getdb();                     // Return non-const reference
 
 private slots:
     void updateActions(const QItemSelection &selection);
@@ -31,29 +34,26 @@ private slots:
     void saveFile();
     void openDialog();  // Slot for opening the new dialog
 
+
 private:
 
     //tDB to store a copy of the most update data send during this session
     QMap<QString, QString> db;
     Telemetry *telemetry;
     int addCounter;
+    AddressWidget *addressWidget;
+    QLabel *entryCountLabel;
 
     void createDB();
     void initializeSystemInfo();
 
     QAction *openDialogAct;  // Action to open the dialog
 
-public:
-    const QMap<QString, QString>& getdb() const;
-
-
     void createMenus();
 
-    AddressWidget *addressWidget;
     QAction *editAct;
     QAction *removeAct;
 
-    QLabel *entryCountLabel;
 };
 //! [0]
 

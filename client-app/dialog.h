@@ -22,8 +22,7 @@ class Dialog : public QDialog
     Q_OBJECT
 
 public:
-    explicit Dialog(Telemetry* telemetry, QWidget *parent = nullptr);
-    Telemetry* telemetry;
+    explicit Dialog(QWidget *parent = nullptr);
 
 private slots:
     void setInteger();

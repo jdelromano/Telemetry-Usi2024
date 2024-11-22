@@ -21,11 +21,12 @@
 
 #include "dialog.h"
 #include "telemetry.h"
+#include "myQApp.h"
 
 class DialogOptionsWidget : public QGroupBox
 {
 public:
-    explicit DialogOptionsWidget(Telemetry *telemetryInstance, QWidget *parent = nullptr);
+    explicit DialogOptionsWidget(QWidget *parent = nullptr);
 
     void addCheckBox(const QString &text, int value);
     void addSpacer();
@@ -41,8 +42,8 @@ private:
     Telemetry* telemetry;
 };
 
-DialogOptionsWidget::DialogOptionsWidget(Telemetry *telemetryInstance, QWidget *parent)
-    : QGroupBox(parent), layout(new QVBoxLayout), checkedCount(0), telemetry(telemetryInstance)
+DialogOptionsWidget::DialogOptionsWidget(QWidget *parent)
+    : QGroupBox(parent), layout(new QVBoxLayout), checkedCount(0)
 {
     setTitle(Dialog::tr("Options"));
     setLayout(layout);
@@ -63,7 +64,7 @@ int DialogOptionsWidget::value() const
     return result;
 }
 
-int DialogOptionsWidget::getCheckedCount() 
+int DialogOptionsWidget::getCheckedCount() const
 {
     return checkedCount;
 }
@@ -76,16 +77,16 @@ void DialogOptionsWidget::addCheckBox(const QString &text, int value)
 
     if (telemetry) {
         connect(checkBox, &QCheckBox::toggled, this, [this, text](bool checked) {
-           telemetry->checkAndUpdate(text, checked ? "true" : "false"); //bool to string
+           MyQApp::telemetry()->checkAndUpdate(text, (checked ? "true" : "false")); //bool to string //TODO
         });
     } else {
         qWarning() << "Telemetry instance is null!";
     }
 }
 
-Dialog::Dialog(Telemetry* telemetryInstance, QWidget *parent)
-    : QDialog(parent),
-    telemetry(telemetryInstance)
+//NEW CONSTRUCTOR, SECOND
+Dialog::Dialog(QWidget *parent)
+    : QDialog(parent)
 {
     QVBoxLayout *verticalLayout;
     if (QGuiApplication::styleHints()->showIsFullScreen() || QGuiApplication::styleHints()->showIsMaximized()) {
@@ -222,7 +223,7 @@ Dialog::Dialog(Telemetry* telemetryInstance, QWidget *parent)
     layout->setColumnStretch(1, 1);
     layout->addWidget(colorButton, 0, 0);
     layout->addWidget(colorLabel, 0, 1);
-    colorDialogOptionsWidget = new DialogOptionsWidget(telemetryInstance, this);;
+    colorDialogOptionsWidget = new DialogOptionsWidget(this);;
     colorDialogOptionsWidget->addCheckBox(doNotUseNativeDialog, QColorDialog::DontUseNativeDialog);
     colorDialogOptionsWidget->addCheckBox(tr("Show alpha channel") , QColorDialog::ShowAlphaChannel);
     colorDialogOptionsWidget->addCheckBox(tr("No buttons") , QColorDialog::NoButtons);
@@ -236,7 +237,7 @@ Dialog::Dialog(Telemetry* telemetryInstance, QWidget *parent)
     layout->setColumnStretch(1, 1);
     layout->addWidget(fontButton, 0, 0);
     layout->addWidget(fontLabel, 0, 1);
-    fontDialogOptionsWidget = new DialogOptionsWidget(telemetryInstance, this);;
+    fontDialogOptionsWidget = new DialogOptionsWidget(this);;
     fontDialogOptionsWidget->addCheckBox(doNotUseNativeDialog, QFontDialog::DontUseNativeDialog);
     fontDialogOptionsWidget->addCheckBox(tr("Show scalable fonts"), QFontDialog::ScalableFonts);
     fontDialogOptionsWidget->addCheckBox(tr("Show non scalable fonts"), QFontDialog::NonScalableFonts);
@@ -258,7 +259,7 @@ Dialog::Dialog(Telemetry* telemetryInstance, QWidget *parent)
     layout->addWidget(openFileNamesLabel, 2, 1);
     layout->addWidget(saveFileNameButton, 3, 0);
     layout->addWidget(saveFileNameLabel, 3, 1);
-    fileDialogOptionsWidget = new DialogOptionsWidget(telemetryInstance, this);
+    fileDialogOptionsWidget = new DialogOptionsWidget(this);
     fileDialogOptionsWidget->addCheckBox(doNotUseNativeDialog, QFileDialog::DontUseNativeDialog);
     fileDialogOptionsWidget->addCheckBox(tr("Show directories only"), QFileDialog::ShowDirsOnly);
     fileDialogOptionsWidget->addCheckBox(tr("Do not resolve symlinks"), QFileDialog::DontResolveSymlinks);
@@ -290,7 +291,7 @@ Dialog::Dialog(Telemetry* telemetryInstance, QWidget *parent)
 
 void Dialog::setInteger()
 {
-    telemetry->incCount("getIntButton");
+    MyQApp::telemetry()->incCount("getIntButton");
 
     //! [0]
     bool ok;
@@ -298,14 +299,14 @@ void Dialog::setInteger()
                                  tr("Percentage:"), 25, 0, 100, 1, &ok);
     if (ok){
         integerLabel->setText(tr("%1%").arg(i));
-        telemetry->checkAndUpdate("getIntField", tr("%1%").arg(i));
+        MyQApp::telemetry()->checkAndUpdate("getIntField", tr("%1%").arg(i));
     }
     //! [0]
 }
 
 void Dialog::setDouble()
 {
-    telemetry->incCount("getDoubleButton");
+    MyQApp::telemetry()->incCount("getDoubleButton");
 
     //! [1]
     bool ok;
@@ -314,14 +315,14 @@ void Dialog::setDouble()
                                        Qt::WindowFlags(), 1);
     if (ok){
         doubleLabel->setText(QString("$%1").arg(d));
-        telemetry->checkAndUpdate("getDoubleField", QString("$%1").arg(d));
+        MyQApp::telemetry()->checkAndUpdate("getDoubleField", QString("$%1").arg(d));
     }
     //! [1]
 }
 
 void Dialog::setItem()
 {
-    telemetry->incCount("getItemButton");
+    MyQApp::telemetry()->incCount("getItemButton");
 
     //! [2]
     QStringList items;
@@ -332,14 +333,14 @@ void Dialog::setItem()
                                          tr("Season:"), items, 0, false, &ok);
     if (ok && !item.isEmpty()){
         itemLabel->setText(item);
-        telemetry->checkAndUpdate("getItemField", tr("QInputDialog::getItem()"));
+        MyQApp::telemetry()->checkAndUpdate("getItemField", tr("QInputDialog::getItem()"));
     }
     //! [2]
 }
 
 void Dialog::setText()
 {
-    telemetry->incCount("getTextButton");
+    MyQApp::telemetry()->incCount("getTextButton");
 
     //! [3]
     bool ok;
@@ -348,14 +349,14 @@ void Dialog::setText()
                                          QDir::home().dirName(), &ok);
     if (ok && !text.isEmpty()){
         textLabel->setText(text);
-        telemetry->checkAndUpdate("getTextField", text);
+        MyQApp::telemetry()->checkAndUpdate("getTextField", text);
     }
     //! [3]
 }
 
 void Dialog::setMultiLineText()
 {
-    telemetry->incCount("getMultiLineButton");
+    MyQApp::telemetry()->incCount("getMultiLineButton");
 
     //! [4]
     bool ok;
@@ -363,14 +364,14 @@ void Dialog::setMultiLineText()
                                                   tr("Address:"), "John Doe\nFreedom Street", &ok);
     if (ok && !text.isEmpty()){
         multiLineTextLabel->setText(text);
-        telemetry->checkAndUpdate("getMultiLineField", text);
+        MyQApp::telemetry()->checkAndUpdate("getMultiLineField", text);
     }
     //! [4]
 }
 
 void Dialog::setColor()
 {
-    telemetry->incCount("setColorButton");
+    MyQApp::telemetry()->incCount("setColorButton");
 
      QColorDialog::ColorDialogOptions options = QFlag(colorDialogOptionsWidget->value());
      QColor color = QColorDialog::getColor(Qt::green, this, "Select Color", options);
@@ -389,17 +390,17 @@ void Dialog::setColor()
         colorInfo["alpha"] = color.alpha();       // Alpha (transparency)
 
         // Update telemetry database with structured data
-        telemetry->checkAndUpdate("setColorField", QJsonDocument(colorInfo).toJson(QJsonDocument::Compact));
+        MyQApp::telemetry()->checkAndUpdate("setColorField", QJsonDocument(colorInfo).toJson(QJsonDocument::Compact));
     }
 }
 
 
 void Dialog::setFont()
 {
-    telemetry->incCount("setFontButton");
-    const QFontDialog::FontDialogOptions options = QFlag(fontDialogOptionsWidget->value());
+    MyQApp::telemetry()->incCount("setFontButton");
+     QFontDialog::FontDialogOptions options = QFlag(fontDialogOptionsWidget->value());
 
-     QString &description = fontLabel->text();
+     const QString &description = fontLabel->text();
     QFont defaultFont;
     if (!description.isEmpty())
         defaultFont.fromString(description);
@@ -421,13 +422,13 @@ void Dialog::setFont()
         fontInfo["strikeOut"] = font.strikeOut();
 
         // Update telemetry database with structured data
-        telemetry->checkAndUpdate("setFontField", QJsonDocument(fontInfo).toJson(QJsonDocument::Compact));
+        MyQApp::telemetry()->checkAndUpdate("setFontField", QJsonDocument(fontInfo).toJson(QJsonDocument::Compact));
     }
 }
 
 void Dialog::setExistingDirectory()
 {
-    telemetry->incCount("setExitDirButton");
+    MyQApp::telemetry()->incCount("setExitDirButton");
 
     QFileDialog::Options options = QFlag(fileDialogOptionsWidget->value());
     options |= QFileDialog::DontResolveSymlinks | QFileDialog::ShowDirsOnly;

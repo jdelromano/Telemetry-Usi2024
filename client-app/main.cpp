@@ -5,12 +5,12 @@
 
 #include "mainwindow.h"
 
-#include <QApplication>
+#include "myQApp.h"
 
 //! [0]
 int main(int argc, char *argv[])
 {
-    QApplication app(argc, argv);
+    MyQApp app(argc, argv);
     MainWindow mw;
     mw.show();
     return app.exec();

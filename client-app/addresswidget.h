@@ -12,6 +12,8 @@
 #include <QStandardPaths>
 #include <QTabWidget>
 
+#include <QWidget>
+
 QT_BEGIN_NAMESPACE
 class QSortFilterProxyModel;
 class QItemSelectionModel;
@@ -24,7 +26,7 @@ class AddressWidget : public QTabWidget
     Q_OBJECT
 
 public:
-    AddressWidget(Telemetry* telemetry, QWidget *parent = nullptr); // Constructor updated to accept telemetry
+    explicit AddressWidget(QWidget *parent = nullptr); // Constructor updated to accept telemetry
     void readFromFile();
     void writeToFile();
 
@@ -37,6 +39,7 @@ public slots:
 
 signals:
     void selectionChanged(const QItemSelection &selected);
+    void entryAdded();
 
 private:
     void setupTabs();

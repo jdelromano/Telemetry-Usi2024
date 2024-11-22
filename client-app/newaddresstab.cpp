@@ -10,9 +10,9 @@
 
 //! [0]
 NewAddressTab::NewAddressTab(
-    Telemetry* telemetry,
+   // Telemetry* telemetry,
     QWidget *parent)
-    : QWidget(parent), telemetry(telemetry)
+    : QWidget(parent)//, telemetry(telemetry)
 {
     auto descriptionLabel = new QLabel(tr("There are currently no contacts in your address book. "
                                           "\nClick Add to add new contacts."));

@@ -3,29 +3,30 @@
 
 #include "addresswidget.h"
 #include "adddialog.h"
+#include <qtableview.h>
 #include "dialog.h"
-#include "telemetry.h"
+//#include "MyQApp.h"
 
 #include <QtWidgets>
 
-//! [0]
-// Constructor for AddressWidget
+#include "myQApp.h"
 
-AddressWidget::AddressWidget(Telemetry* telemetry, QWidget *parent)
+AddressWidget::AddressWidget(QWidget *parent)
     : QTabWidget(parent),
-    telemetry(telemetry),
     table(new TableModel(this)),
-    newAddressTab(new NewAddressTab(telemetry, this)) // Pass telemetryInstance to NewAddressTab
+    newAddressTab(new NewAddressTab(this))
 {
-    // Update the counter using storeOrUpdateValue with the key "addMenu_counter"
+    // Access the global telemetry instance from MyQApp
     connect(newAddressTab, &NewAddressTab::entryAdded,
-            this, [this, &telemetry]() {
-                // Increment or set the value using telemetry
-        //test
-                //telemetry->storeOrUpdateValue("addMenuounter", "1");
-                //telemetry->storeOrUpdateValue("addMenuCounter", QString("1"));
-
+            this, []() {
+                Telemetry *telemetry = MyQApp::telemetry();
+                //if (telemetry) {
+                    // Update or increment the value in telemetry
+                   // telemetry->storeOrUpdateValue("addMenuCounter", "1");
+               // }
             });
+//}
+
 
     // Connect sendDetails signal to the addEntry method
     connect(newAddressTab, &NewAddressTab::sendDetails,
@@ -49,11 +50,11 @@ void AddressWidget::showAddEntryDialog()
 
     // If the dialog was accepted, add the entry
     if (aDialog.exec()) {
-        // Store the dialog's results in non-const variables
+        // Store the dialog's results in non- variables
         QString name = aDialog.name();
         QString address = aDialog.address();
 
-        // Now pass these non-const lvalues to addEntry
+        // Now pass these non- lvalues to addEntry
         addEntry(name, address);
     }
 }
@@ -220,8 +221,7 @@ void AddressWidget::writeToFile()
 
 void AddressWidget::openDialog()
 {
-    Telemetry* telemetryInstance = this->telemetry;
-    Dialog *dialog = new Dialog(telemetryInstance, this);
+    Dialog *dialog = new Dialog();
     dialog->setWindowTitle(tr("Standard Dialog"));
 
     if (!QGuiApplication::styleHints()->showIsFullScreen() && !QGuiApplication::styleHints()->showIsMaximized()) {
