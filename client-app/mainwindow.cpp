@@ -82,7 +82,7 @@ void MainWindow::createDB() {
     // Debug output to verify initialization
     qDebug() << "Database initialized:";
     for (auto it = MyQApp::db.cbegin(); it != MyQApp::db.cend(); ++it) {
-        qDebug() << it.key() << ": " << it.value();
+        qDebug() << it.key() << "a: " << it.value();
     }
 }
 

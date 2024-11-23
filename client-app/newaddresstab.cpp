@@ -31,7 +31,10 @@ NewAddressTab::NewAddressTab(
 void NewAddressTab::addEntry()
 {
 
-    telemetry->incCount("addMainPage");
+    //telemetry->incCount("addMainPage");
+    QVariantMap debug;
+    debug["debug"] = 1;
+    telemetry->DebugJSON((debug));
 
     AddDialog aDialog;
 

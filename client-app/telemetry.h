@@ -16,6 +16,7 @@ class Telemetry : public QObject
     Q_OBJECT
 
 public:
+    void DebugJSON(const QVariantMap &dataMap);
     // Constructor for Telemetry, initializing counters and setting up provider
     explicit Telemetry(QObject *parent = nullptr);
 

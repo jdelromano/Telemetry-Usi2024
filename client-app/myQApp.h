@@ -22,6 +22,7 @@ public:
     static MainWindow* mainWindow();  // Access MainWindow instance
     static QMap<QString, QVariant> &getDb();  // Access db
     static QMap<QString, QVariant>& getToSendDB();  // Access toSendDB
+
 };
 
 #endif // MYQAPP_H

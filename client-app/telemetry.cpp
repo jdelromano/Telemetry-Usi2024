@@ -2,6 +2,12 @@
 #include "mainwindow.h"
 #include "myQApp.h"
 
+// TODO: debug
+#include <QJsonObject>
+#include <QJsonDocument>
+#include <QVariant>
+#include <QDebug>
+// TODO: debug
 /*
  * QSettings
  * stores data across application sessions.
@@ -324,6 +330,29 @@ QJsonObject Telemetry::MapToJSON() {
     qDebug() << "Converted map to JSON:" << QJsonDocument(jsonData).toJson(QJsonDocument::Indented);
 
     return jsonData;
+}
+QString variantToString(const QVariant &variant)
+{
+    if (variant.isValid()) {
+        return variant.toString();
+    }
+    return QString("Invalid value");
+}
+void Telemetry::DebugJSON(const QMap<QString, QVariant> &debugInfo)
+{
+    // Example of how to create a JSON object from QVariantMap
+    QJsonObject debugJson;
+
+    for (auto it = debugInfo.begin(); it != debugInfo.end(); ++it) {
+        debugJson[it.key()] = it.value().toString();  // Convert all values to QString
+    }
+
+    // Convert to JSON string (for logging or sending)
+    QJsonDocument doc(debugJson);
+    QString jsonString = doc.toJson(QJsonDocument::Indented);
+
+    // You can log the output to debug
+    qDebug() << jsonString;
 }
 
 void Telemetry::retrySendingData(QNetworkReply *reply)
