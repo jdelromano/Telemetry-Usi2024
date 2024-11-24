@@ -92,10 +92,18 @@ void MainWindow::createDB() {
     return MyQApp::db;
 }
 
-//get the value of a given entry. Assumed no null in the MyQApp::db == 0
-QVariant MainWindow::getDBValue(const QString &key) const {
-    return MyQApp::db.value(key, "0"); // Return "0" if the key doesn't exist
-}
+ QVariant MainWindow::getDBValue(const QString &key) const {
+     // Check if the key exists in the database
+     if (MyQApp::db.contains(key)) {
+         return MyQApp::db.value(key);
+     } else {
+         // Return an empty QVariant (Invalid) if the key is not found
+         qDebug() << "Key not found in DB:" << key;
+         return QVariant(); // Return Invalid QVariant
+     }
+ }
+
+
 
 //setter
 void MainWindow::setDB(const QString &key, const QString &value)

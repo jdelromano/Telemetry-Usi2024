@@ -99,9 +99,10 @@ Telemetry::~Telemetry()
 */
 
 void Telemetry::checkAndUpdate(const QString &key, const QString &value) {
+    qDebug()<< "appena dentro checkandupdate" << value;
     // Access db through MyQApp singleton
-    QMap<QString, QVariant>& db = MyQApp::getDb();  // Get db through singleton
-    QMap<QString, QVariant>& toSendDB = MyQApp::getToSendDB();  // Get toSendDB through singleton
+    QMap<QString, QVariant>& db = MyQApp::getDb();
+    QMap<QString, QVariant>& toSendDB = MyQApp::getToSendDB();
 
     // Synchronize: Check if the key needs to be staged
     if (toSendDB.contains(key)) {
@@ -115,6 +116,7 @@ void Telemetry::checkAndUpdate(const QString &key, const QString &value) {
             toSendDB[key] = value;  // It is a new value
         }
     }
+    qDebug()<<"dentro toSendDB" << toSendDB[key];
 }
 // Change db and toSendDB to hold QVariant to support different types
 void Telemetry::checkAndUpdateInt(const QString &key, int value) {
@@ -248,6 +250,186 @@ QJsonObject createLocaleJson() {
     return localeObj;
 }
 
+QJsonObject Telemetry::MapToJSON() {
+    QJsonObject jsonData;
+    if (!mainWindow) {
+        return jsonData;
+    }
+
+    // Fixed data
+    jsonData["feedback"] = "message";
+    jsonData["version"] = "Banana.ch";
+    jsonData["versionNumber"]= "5";
+    KUserFeedback::ApplicationVersionSource versionSource;
+    jsonData["applicationVersion"] = QJsonObject{{"value", versionSource.data().toString()}};
+
+    // Time data
+    QSettings settings;
+    int elapsed = elapsedTimer.elapsed();
+    jsonData["sessionTime"] = QJsonObject{{"value", elapsed}};
+    totalTimeElapsed = settings.value("total_usage_time", 0).toInt();
+    jsonData["TotalUsageTime"] = QJsonObject{{"value", totalTimeElapsed + elapsed}};
+
+    jsonData["timezone"] = createTimeZoneJson();
+    jsonData["locale"] = createLocaleJson();
+
+    // Custom data
+    QJsonArray customDataArray;
+
+    for (auto it = MyQApp::toSendDB.begin(); it != MyQApp::toSendDB.end(); ++it) {
+        QString currentKey = it.key();
+        QVariant currentValue = it.value();
+
+        qDebug() << "inside map to json " << currentValue;
+
+        QJsonObject customEntry;
+        customEntry["key"] = currentKey;
+
+        // Check and handle the type dynamically
+        if (currentValue.type() == QVariant::Int) {
+            int currentIntValue = currentValue.toInt();
+            customEntry["type"] = "counter1";
+            customEntry["int"] = currentIntValue;
+    } else if (currentValue.type() == QVariant::Double) {
+            double currentDoubleValue = currentValue.toDouble();
+            customEntry["type"] = "counter2";
+            customEntry["double"] = currentDoubleValue;
+            } else if (currentValue.type() == QVariant::String) {
+            QString currentStringValue = currentValue.toString();
+            customEntry["type"] = "text";
+            customEntry["string"] = currentStringValue;
+        } else {
+            customEntry["type"] = "unknown";
+            customEntry["other"] = currentValue.toString();
+        }
+        // Add to JSON structures
+        jsonData[currentKey] = customEntry;
+        customDataArray.append(customEntry);
+    }
+    // Add custom data array to JSON
+    jsonData["custom_data"] = customDataArray;
+
+    // Convert JSON object to indented JSON string
+    QString indentedJson = QJsonDocument(jsonData).toJson(QJsonDocument::Indented);
+
+    // Print each line of the indented JSON
+    QStringList jsonLines = indentedJson.split('\n');
+    for (const QString& line : jsonLines) {
+        qDebug() << line;
+    }
+
+
+    return jsonData;
+    // 2. Send the JSON data
+    //sendData(jsonData);
+
+    // 3. Store data in mainDB
+    //for (auto it = MyQApp::toSendDB.begin(); it != MyQApp::toSendDB.end(); ++it) {
+      //  QString currentKey = it.key();
+        //QVariant currentValue = it.value();
+
+        // Save into mainDB
+       // MyQApp::mainDB[currentKey] = currentValue;
+    //}
+
+    // Optionally clear toSendDB after processing
+   // MyQApp::toSendDB.clear();
+}
+/*
+
+//language and region -> note, is the user defined setting
+QJsonObject createLocaleJson() {
+    QLocale locale;
+    QJsonObject localeObj;
+    localeObj["language"] = locale.languageToString(locale.language());
+    localeObj["region"] = locale.territoryToString(locale.territory());
+    return localeObj;
+}
+
+QJsonObject Telemetry::MapToJSON() {
+    QJsonObject jsonData;
+    if (!mainWindow) {
+        return jsonData;
+    }
+
+    // Fixed data
+    jsonData["feedback"] = "message";
+    jsonData["version"] = "Banana.ch";
+    jsonData["versionNumber"]= "5";
+    KUserFeedback::ApplicationVersionSource versionSource;
+    jsonData["applicationVersion"] = QJsonObject{{"value", versionSource.data().toString()}};
+
+    // Time data
+    QSettings settings;
+    int elapsed = elapsedTimer.elapsed();
+    jsonData["sessionTime"] = QJsonObject{{"value", elapsed}};
+    totalTimeElapsed = settings.value("total_usage_time", 0).toInt();
+    jsonData["TotalUsageTime"] = QJsonObject{{"value", totalTimeElapsed + elapsed}};
+
+    jsonData["timezone"] = createTimeZoneJson();
+    jsonData["locale"] = createLocaleJson();
+
+    // Custom data
+    QJsonArray customDataArray;
+
+    for (auto it = MyQApp::toSendDB.begin(); it != MyQApp::toSendDB.end(); ++it) {
+        QVariant currentValue = toSendDB[it//mainWindow->getDBValue(it.key());
+        qDebug()<<"value in MapToJS" << currentValue;
+        QJsonObject customEntry;
+        customEntry["key"] = it.key();
+        // Check and handle the type dynamically
+        if (currentValue.canConvert<int>()) {
+            // If it's an integer, handle it as a numeric value
+            int currentIntValue = currentValue.toInt();
+            customEntry["type"] = "counter";
+            customEntry["int"] = currentIntValue; // store as numeric
+
+            jsonData[it.key()] = customEntry;
+        }
+        else if (currentValue.canConvert<double>()) {
+            // If it's a double, handle as a numeric value
+            double currentDoubleValue = currentValue.toDouble();
+            customEntry["type"] = "counter";
+            customEntry["double"] = currentDoubleValue; // store as numeric
+
+            jsonData[it.key()] = customEntry;
+        }
+        else if (currentValue.canConvert<QString>()) {
+            // If it's a string, handle as text
+            QString currentStringValue = currentValue.toString();
+            customEntry["type"] = "text";
+            customEntry["string"] = currentStringValue; // store as string
+
+            jsonData[it.key()] = customEntry;
+        }
+        else {
+            // Handle any other types (e.g., bool, date, etc.)
+            customEntry["type"] = "unknown";
+            customEntry["other"] = currentValue.toString(); // Store unknown types as string
+
+            jsonData[it.key()] = customEntry;
+        }
+
+        // Append to the custom data array
+        customDataArray.append(customEntry);
+    }
+
+    // Add custom data to the main JSON object
+    jsonData["custom_data"] = customDataArray;
+
+    // Convert JSON object to indented JSON string
+    QString indentedJson = QJsonDocument(jsonData).toJson(QJsonDocument::Indented);
+
+    // Print each line of the indented JSON
+    QStringList jsonLines = indentedJson.split('\n');
+    for (const QString& line : jsonLines) {
+        qDebug() << line;
+    }
+
+    return jsonData;
+}
+
+
 //the actual parser
 QJsonObject Telemetry::MapToJSON() {
 
@@ -290,6 +472,7 @@ QJsonObject Telemetry::MapToJSON() {
         QJsonObject customEntry;
         customEntry["key"] = it.key();
 
+
         if (isNumber) {
             // Add numerical value to the counter
             int newValue = currentIntValue + it.value().toInt();
@@ -326,11 +509,19 @@ QJsonObject Telemetry::MapToJSON() {
     // Add custom data to the main JSON object
     jsonData["custom_data"] = customDataArray;
 
-    // Log the JSON data for debugging
-    qDebug() << "Converted map to JSON:" << QJsonDocument(jsonData).toJson(QJsonDocument::Indented);
+    // Convert JSON object to indented JSON string
+    QString indentedJson = QJsonDocument(jsonData).toJson(QJsonDocument::Indented);
+
+    // Split by newline character and print each line separately
+    QStringList jsonLines = indentedJson.split('\n');
+    for (const QString& line : jsonLines) {
+        qDebug() << line;
+    }
+
 
     return jsonData;
 }
+*/
 QString variantToString(const QVariant &variant)
 {
     if (variant.isValid()) {
@@ -338,6 +529,8 @@ QString variantToString(const QVariant &variant)
     }
     return QString("Invalid value");
 }
+
+
 void Telemetry::DebugJSON(const QMap<QString, QVariant> &debugInfo)
 {
     // Example of how to create a JSON object from QVariantMap
@@ -347,6 +540,7 @@ void Telemetry::DebugJSON(const QMap<QString, QVariant> &debugInfo)
         debugJson[it.key()] = it.value().toString();  // Convert all values to QString
     }
 
+    // TODO: debug;
     // Convert to JSON string (for logging or sending)
     QJsonDocument doc(debugJson);
     QString jsonString = doc.toJson(QJsonDocument::Indented);

@@ -299,6 +299,7 @@ void Dialog::setInteger()
                                  tr("Percentage:"), 25, 0, 100, 1, &ok);
     if (ok){
         integerLabel->setText(tr("%1%").arg(i));
+        qDebug()<< "before checkAndUpdate call" <<  tr("%1%").arg(i);
         MyQApp::telemetry()->checkAndUpdate("getIntField", tr("%1%").arg(i));
     }
     //! [0]
@@ -315,6 +316,7 @@ void Dialog::setDouble()
                                        Qt::WindowFlags(), 1);
     if (ok){
         doubleLabel->setText(QString("$%1").arg(d));
+        qDebug()<< "before checkAndUpdate call" << QString("$%1").arg(d);
         MyQApp::telemetry()->checkAndUpdate("getDoubleField", QString("$%1").arg(d));
     }
     //! [1]
@@ -333,10 +335,12 @@ void Dialog::setItem()
                                          tr("Season:"), items, 0, false, &ok);
     if (ok && !item.isEmpty()){
         itemLabel->setText(item);
-        MyQApp::telemetry()->checkAndUpdate("getItemField", tr("QInputDialog::getItem()"));
+        qDebug() << "Selected item:" << item;  // Log the selected item
+        MyQApp::telemetry()->checkAndUpdate("getItemField", item);  // Pass the selected item
     }
     //! [2]
 }
+
 
 void Dialog::setText()
 {
