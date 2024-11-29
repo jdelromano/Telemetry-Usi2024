@@ -33,6 +33,10 @@ MainWindow* MyQApp::mainWindow() {
     return m_mainWindow;
 }
 
+QVariant MyQApp::getDatabaseValue(const QString &key) {
+    return MyQApp::getDb().value(key, QVariant());
+}
+
 QMap<QString, QVariant>& MyQApp::getDb() {
     return db;  // Return the reference to db
 }

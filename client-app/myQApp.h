@@ -14,6 +14,7 @@ private:
     static MainWindow *m_mainWindow;  // MainWindow instance
 
 public:
+    QVariant getDatabaseValue(const QString &key);
     MyQApp(int &argc, char **argv);
     static QMap<QString, QVariant> toSendDB;  // Static toSendDB map
     static QMap<QString, QVariant> db;  // Static db map

@@ -24,7 +24,7 @@ public:
 
     // Function to store or update a value in the telemetry data map
     // In Telemetry.h
-    void incCount(const QString field);
+    void incCount(QString field);
 
     int total_time;
     //int totalTimeElapsed;
@@ -39,8 +39,8 @@ public:
 
     //convert data into json
     QJsonObject MapToJSON();
+    QJsonObject createCustomDataJson(const QString& key, const QVariant& value, const QString& valueType);
 
-//private:
     QElapsedTimer elapsedTimer;
     MainWindow *mainWindow; // Reference to MainWindow
     QNetworkAccessManager *manager;
