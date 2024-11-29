@@ -19,5 +19,9 @@ COPY php.ini /usr/local/etc/php/
 # Set file permissions for Apache
 RUN chown -R www-data:www-data /var/www/html
 
+ARG USERFEEDBACKCONSOLE_USER
+ARG USERFEEDBACKCONSOLE_PASSWORD
+RUN htpasswd -c -b /var/www/html/.htpasswd ${USERFEEDBACKCONSOLE_USER} ${USERFEEDBACKCONSOLE_PASSWORD}
+
 # Expose port 80 for the web server
 EXPOSE 80

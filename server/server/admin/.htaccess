@@ -1,3 +1,8 @@
+AuthType Basic
+AuthName "lollo"
+AuthUserFile /var/www/html/.htpasswd
+Require valid-user
+
 Allow from all
 Options +FollowSymLinks
 RewriteEngine on

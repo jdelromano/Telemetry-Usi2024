@@ -1,11 +1,16 @@
 services:
   php-app:
     container_name: kuserfeedback-backend
-    build: .
+    build:
+        context: .
+        args:
+            - USERFEEDBACKCONSOLE_USER=${USERFEEDBACKCONSOLE_USER}
+            - USERFEEDBACKCONSOLE_PASSWORD=${USERFEEDBACKCONSOLE_PASSWORD}
     ports:
       - "${HOST_PHP_PORT}:80"
     env_file:
         - .env
+
     depends_on:
       db:
         condition: service_healthy

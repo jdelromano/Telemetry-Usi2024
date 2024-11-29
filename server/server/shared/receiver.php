@@ -17,8 +17,25 @@ class Receiver
 {
 
 /** Dummy command for probing for redirects. */
-function get_submit($productName)
+
+function get_surveys()
 {
+    $db = new DataStore();
+    $products = Product::allProducts($db);
+    $names = [];
+    foreach ($products as $product) {
+      if (isset($product->name)) {
+        $names[] = $product->name;
+      }
+    }
+    $responseData = array();
+    foreach ($names as $name) {
+    $product = Product::productByName($db,$name);
+    $surveys = Survey::activeSurveysForProduct($db, $product);
+    $responseData[$name] = $surveys;
+    }
+    header('Content-Type: text/json');
+    echo(json_encode($responseData));
 }
 
 /** Data submission command. */
