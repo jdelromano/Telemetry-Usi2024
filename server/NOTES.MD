@@ -16,3 +16,12 @@ Se la versione è vecchia prenderemo:
 - Tipo di licenza
 - Sistema operativo
 - Versione del sistema operativo
+
+
+Come facciamo per il version number?
+- version_major
+- version_minor
+- version_patch
+- version_build
+
+E se manca? che default? 0, 1 o None?
