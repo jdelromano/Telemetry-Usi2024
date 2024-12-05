@@ -16,14 +16,12 @@ class Telemetry : public QObject
     Q_OBJECT
 
 public:
-    void DebugJSON(const QVariantMap &dataMap);
     // Constructor for Telemetry, initializing counters and setting up provider
     explicit Telemetry(QObject *parent = nullptr);
 
    ~Telemetry();
 
     // Function to store or update a value in the telemetry data map
-    // In Telemetry.h
     void incCount(QString field);
 
     int total_time;
@@ -45,7 +43,7 @@ public:
     MainWindow *mainWindow; // Reference to MainWindow
     QNetworkAccessManager *manager;
 
-     QMap<QString, QVariant> *db;
+     QMap<QString, QVariant> *DB;
 
     KUserFeedback::Provider *provider;  // Feedback provider
     QTimer feedbackTimer;  // Timer for periodic feedback

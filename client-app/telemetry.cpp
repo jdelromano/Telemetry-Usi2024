@@ -1,13 +1,11 @@
 #include "telemetry.h"
 #include "mainwindow.h"
 #include "myQApp.h"
-
-// TODO: debug
 #include <QJsonObject>
 #include <QJsonDocument>
 #include <QVariant>
 #include <QDebug>
-// TODO: debug
+
 /*
  * QSettings
  * stores data across application sessions.
@@ -43,7 +41,7 @@ Telemetry::Telemetry(QObject *parent)
     retryCount(0)//,
 {
     // Basic settings
-    int delay = 10; // Seconds delay
+    int delay = 1; // Seconds delay
     int periodicFeedback_timeInterval = delay * 1000; // ms*1000 = seconds
 
     // Load old total time
@@ -87,41 +85,41 @@ Telemetry::~Telemetry()
 
 void Telemetry::checkAndUpdate(const QString &key, const QString &value) {
     qDebug()<< "appena dentro checkandupdate" << value;
-    // Access db through MyQApp singleton
-    QMap<QString, QVariant>& db = MyQApp::getDb();
+    // Access DB through MyQApp singleton
+    QMap<QString, QVariant>& DB = MyQApp::getDb();
     QMap<QString, QVariant>& toSendDB = MyQApp::getToSendDB();
 
     // Synchronize: Check if the key needs to be staged
     if (toSendDB.contains(key)) {
-        // Only update if toSendDB is different from both db and the new value
-        if (toSendDB[key] != db.value(key) && toSendDB[key] != value) {
+        // Only update if toSendDB is different from both DB and the new value
+        if (toSendDB[key] != DB.value(key) && toSendDB[key] != value) {
             toSendDB[key] = value;
         }
     } else {
-        // If not staged, check if the value differs from db
-        if (!db.contains(key) || db.value(key) != value) {
+        // If not staged, check if the value differs from DB
+        if (!DB.contains(key) || DB.value(key) != value) {
             toSendDB[key] = value;  // It is a new value
         }
     }
     qDebug()<<"dentro toSendDB" << toSendDB[key];
 }
-// Change db and toSendDB to hold QVariant to support different types
+// Change DB and toSendDB to hold QVariant to support different types
 void Telemetry::checkAndUpdateInt(const QString &key, int value) {
-    // Access db and toSendDB through MyQApp singleton
-    QMap<QString, QVariant>& db = MyQApp::getDb();  // Get db through singleton
+    // Access DB and toSendDB through MyQApp singleton
+    QMap<QString, QVariant>& DB = MyQApp::getDb();  // Get DB through singleton
     QMap<QString, QVariant>& toSendDB = MyQApp::getToSendDB();  // Get toSendDB through singleton
 
     // Synchronize: Check if the key needs to be staged
     if (toSendDB.contains(key)) {
-        // Only update if toSendDB is different from both db and the new value
-        if (toSendDB[key].toInt() != db.value(key).toInt() && toSendDB[key].toInt() != value) {
+        // Only update if toSendDB is different from both DB and the new value
+        if (toSendDB[key].toInt() != DB.value(key).toInt() && toSendDB[key].toInt() != value) {
             qDebug() << "Updating int value for key" << key << "from"
                      << toSendDB[key].toInt() << "to" << value;
             toSendDB[key] = value;  // Update value in toSendDB
         }
     } else {
-        // If not staged, check if the value differs from db
-        if (!db.contains(key) || db.value(key).toInt() != value) {
+        // If not staged, check if the value differs from DB
+        if (!DB.contains(key) || DB.value(key).toInt() != value) {
             qDebug() << "New int key-value pair added: " << key << "->" << value;
             toSendDB[key] = value;  // It is a new value
         }
@@ -129,35 +127,33 @@ void Telemetry::checkAndUpdateInt(const QString &key, int value) {
 }
 
 void Telemetry::checkAndUpdateBool(const QString &key, bool value) {
-    // Access db and toSendDB through MyQApp singleton
-    QMap<QString, QVariant>& db = MyQApp::getDb();  // Get db through singleton
+    // Access DB and toSendDB through MyQApp singleton
+    QMap<QString, QVariant>& DB = MyQApp::getDb();  // Get DB through singleton
     QMap<QString, QVariant>& toSendDB = MyQApp::getToSendDB();  // Get toSendDB through singleton
 
     // Synchronize: Check if the key needs to be staged
     if (toSendDB.contains(key)) {
-        // Only update if toSendDB is different from both db and the new value
-        if (toSendDB[key].toBool() != db.value(key).toBool() && toSendDB[key].toBool() != value) {
+        // Only update if toSendDB is different from both DB and the new value
+        if (toSendDB[key].toBool() != DB.value(key).toBool() && toSendDB[key].toBool() != value) {
             qDebug() << "Updating bool value for key" << key << "from"
                      << toSendDB[key].toBool() << "to" << value;
             toSendDB[key] = value;  // Update value in toSendDB
         }
     } else {
-        // If not staged, check if the value differs from db
-        if (!db.contains(key) || db.value(key).toBool() != value) {
+        // If not staged, check if the value differs from DB
+        if (!DB.contains(key) || DB.value(key).toBool() != value) {
             qDebug() << "New bool key-value pair added: " << key << "->" << value;
             toSendDB[key] = value;  // It is a new value
         }
     }
 }
 
-
-//void Telemetry::incCount( QString field) {
 void Telemetry::incCount(QString field) {
     // Retrieve the current value from toSendDB, default to "0" if not present
     int currentValue = MyQApp::toSendDB.value(field, "0").toInt();
 
     // Retrieve the value from the database
-    int dbValue = MyQApp::db.value(field, "0").toInt(); // Implement or replace with your actual DB retrieval function
+    int dbValue = MyQApp::DB.value(field, "0").toInt(); // Implement or replace with your actual DB retrieval function
 
     // Update the current value if it is less than the database value
     if (currentValue < dbValue) {
@@ -175,7 +171,7 @@ void Telemetry::incCount(QString field) {
 void Telemetry::sendTelemetryData()
 {
     // Network settings
-    QString networkUrl = "http://0.0.0.0:1984/receiver/submit/telemetryapp";
+    QString networkUrl = "http://0.0.0.1:1984/receiver/submit/telemetryapp";
     QString contentType = "application/json";
 
     QNetworkAccessManager *manager = new QNetworkAccessManager(this);
@@ -207,7 +203,7 @@ void Telemetry::sendTelemetryData()
             qDebug() << "Telemetry data sent successfully. Server response:" << responseData;
 
             for (auto it = MyQApp::toSendDB.begin(); it != MyQApp::toSendDB.end(); ++it) {
-                MyQApp::db[it.key()] = it.value(); // Replace or insert values in db
+                MyQApp::DB[it.key()] = it.value(); // Replace or insert values in DB
             }
 
             // Clean up sent data from the database
@@ -225,9 +221,6 @@ void Telemetry::sendTelemetryData()
         delete manager;
     });
 }
-
-
-//map<QString, QVariant> to JSon parser + auxiliary
 
 //language and region -> note, is the user defined setting
 QJsonObject createLocaleJson() {
@@ -283,8 +276,7 @@ QJsonObject Telemetry::MapToJSON() {
     for (auto it = MyQApp::toSendDB.begin(); it != MyQApp::toSendDB.end(); ++it) {
         QVariant currentValue = it.value();
 
-        // Assuming valueType is part of your toSendDB data, if it's not, add a condition for default types
-        QString valueType = it.key(); // Example: You might store the type as the key or use another method
+        QString valueType = it.key();
 
         // Call createCustomDataJson with the value type (adjust based on your data)
         QJsonObject customEntry = createCustomDataJson(it.key(), currentValue, valueType);
@@ -298,7 +290,6 @@ QJsonObject Telemetry::MapToJSON() {
     QString indentedJson = QJsonDocument(jsonData).toJson(QJsonDocument::Indented);
     QStringList jsonLines = indentedJson.split('\n');
     for (const QString& line : jsonLines) {
-        qDebug() << line;
     }
 
     return jsonData;
@@ -310,28 +301,25 @@ QJsonObject Telemetry::createCustomDataJson(const QString& key, const QVariant& 
     customEntry["key"] = key;
 
     // Use the passed valueType instead of hardcoded "unknown"
-    if (valueType == "counter" && value.typeId() == QVariant::Int || key.contains("count", Qt::CaseInsensitive))  {
-        customEntry["type"] = "counter1";
+    if (valueType == "counter" || value.typeId() == QMetaType::Int || key.contains("count", Qt::CaseInsensitive))  {
+        customEntry["type"] = "counter";
         customEntry["int"] = value.toInt();
-    } else if (valueType == "counter2" && value.typeId() == QVariant::Double) {
-        customEntry["type"] = "counter2";
+    } else if (valueType == "value" || value.typeId() == QMetaType::Double) {
+        customEntry["type"] = "value";
         customEntry["double"] = value.toDouble();
-    } else if (valueType == "text" && value.typeId() == QVariant::String) {
+    } else if (valueType == "text" || value.typeId() == QMetaType::QString) {
         customEntry["type"] = "text";
         customEntry["string"] = value.toString();
-    } else if ((valueType == "boolean" && value.typeId() == QVariant::Bool) || key.contains("flag", Qt::CaseInsensitive)) {
-        customEntry["type"] = "boolean";
+    } else if ((valueType == "boolean" || value.typeId() == QMetaType::Bool) || key.contains("flag", Qt::CaseInsensitive)) {
+        customEntry["type"] = "flag";
         customEntry["bool"] = value.toBool();
     } else {
-        customEntry["type"] = valueType; // Use the passed valueType here
-        customEntry["string"] = value.toString(); // Store the value as string if the type is unknown or mismatched
+        customEntry["type"] = valueType;
+        customEntry["string"] = value.toString();
     }
 
     return customEntry;
 }
-
-
-
 
 QJsonObject MapToJSON() {
     QJsonObject jsonData;
@@ -353,7 +341,6 @@ QJsonObject MapToJSON() {
 
     for (auto it = MyQApp::toSendDB.begin(); it != MyQApp::toSendDB.end(); ++it) {
         QVariant currentValue = it.value();
-        qDebug() << "value in MapToJS" << currentValue;
 
         QJsonObject customEntry;
         customEntry["key"] = it.key();
@@ -393,7 +380,6 @@ QJsonObject MapToJSON() {
     // Print out the formatted JSON data for debugging
     QStringList jsonLines = indentedJson.split('\n');
     for (const QString& line : jsonLines) {
-        qDebug() << line;
     }
 
     return jsonData;

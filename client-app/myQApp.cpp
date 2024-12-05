@@ -6,7 +6,7 @@ MyQApp* MyQApp::instance = nullptr;
 Telemetry* MyQApp::m_telemetry = nullptr;
 MainWindow* MyQApp::m_mainWindow = nullptr;
 QMap<QString, QVariant> MyQApp::toSendDB;  // Static toSendDB map
-QMap<QString, QVariant> MyQApp::db;  // Static db map
+QMap<QString, QVariant> MyQApp::DB;  // Static DB map
 
 MyQApp::MyQApp(int &argc, char **argv)
     : QApplication(argc, argv)
@@ -38,7 +38,7 @@ QVariant MyQApp::getDatabaseValue(const QString &key) {
 }
 
 QMap<QString, QVariant>& MyQApp::getDb() {
-    return db;  // Return the reference to db
+    return DB;  // Return the reference to DB
 }
 
 QMap<QString, QVariant>& MyQApp::getToSendDB() {
