@@ -37,7 +37,7 @@ jobs:
     - name: Ping the server until healthy (max 10 retries)
       run: |
         for i in {1..10}; do
-          if curl --fail http://localhost:1984/analytics/check_schema; then
+          if curl --fail http://localhost:1984/receiver/surveys; then
             echo "Server is healthy!"
             exit 0
           fi
