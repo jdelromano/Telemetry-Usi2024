@@ -48,7 +48,7 @@ following command:
 
 ```bash
 source .env
-docker exec -i kuserfeedback-db mysql -u root -p${MYSQL_ROOT_PASSWORD} < mock_data.sql
+docker exec -i kuserfeedback-db mysql -u root -p${MYSQL_ROOT_PASSWORD} < data/mock_data.sql
 ```
 
 This will populate the database with some dummy data, that you can use to test
